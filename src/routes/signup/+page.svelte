@@ -2,17 +2,23 @@
     import LoginInput from "../../lib/components/LoginInput.svelte";
     import { ConfettiExplosion } from 'svelte-confetti-explosion';
     import { superForm } from "sveltekit-superforms/client";
-	import { loginSchema } from "$lib/schemas/schemas";
-    import person from "../../assets/person.svg";
+	import { signupSchema } from "$lib/schemas/schemas";
+    import tag from "../../assets/tag.svg";
+    import shieldCheck from "../../assets/shieldCheck.svg";
+    import mailbox from "../../assets/mailbox.svg";
+    import badge from "../../assets/badge.svg";
     import shield from "../../assets/shield.svg";
+    import tfaname from "../../assets/tfaname.svg";
     import { fade } from 'svelte/transition';
     import { page } from '$app/stores';
 	import Spinner from "$lib/components/Spinner.svelte";
 	import TinyLoading from "$lib/components/TinyLoading.svelte";
+	import CheckBox from "$lib/components/CheckBox.svelte";
 
     export let data;
+
     const { form, errors, enhance, message } = superForm(data.form, {
-        validators: loginSchema
+        validators: signupSchema
     });
 
     let loading = false;
@@ -23,29 +29,29 @@
         loading = false;
     }
 
-    let loginStatus: "quickLogin" | "manualLogin" | "tfa" = "quickLogin";
+    let pageStatus: "signup" | "tfa" = "signup";
 
     // $: if (loginStatus !== "manualLogin") $message = undefined;
 
-    $: if ($message === "tfa") loginStatus = "tfa";
+    $: if ($message === "tfa") pageStatus = "tfa";
 </script>
 
 <svelte:head>
-    <title>Authenticate</title>
+    <title>Signup</title>
 </svelte:head>
 
 <main>
     <section>
-        {#if loginStatus==="quickLogin"}
-            <div class="buttons" out:fade={{duration: 100}} in:fade={{delay: 100, duration: 100}}>
-                <button>Stephen</button>
-                <button on:click={() => loginStatus="manualLogin"}>Login to a new account</button>
-            </div>
-        {:else if loginStatus==="tfa"}
+        {#if pageStatus==="tfa"}
             <div class="tfa" out:fade={{duration: 100}} in:fade={{delay: 100, duration: 100}}>
-                <h2>2 factor verification is enabled!</h2>
-                <Spinner />
-                <button class="bordered">Not starting? Click here</button>
+                <h2>Setup 2 factor verification!</h2>
+                <div class="tfasetup">
+                    <LoginInput name="tfaname" placeholder="2fa Method Name (e.g., Macbook Fingerprint.)" icon={tfaname} bind:value={$form.name} bind:error={$errors.name}  />
+                    <button class="more-border">Begin</button>
+                    <button class="more-border">Cancel and Signup</button>
+                </div>
+                <!-- <Spinner /> -->
+                <div></div>
             </div>
         {:else}
             <form method="POST" use:enhance class="form" out:fade={{duration: 100}} in:fade={{delay: 100, duration: 100}}>
@@ -57,19 +63,26 @@
                 {#if $errors.overall}
                     <p class="error">{$errors.overall}</p>
                 {/if}
-                <LoginInput name="username" placeholder="Username" icon={person} bind:value={$form.username} bind:error={$errors.username}  />
+                <LoginInput name="name" placeholder="Name" icon={tag} bind:value={$form.name} bind:error={$errors.name}  />
+                <LoginInput name="email" placeholder="Email" icon={mailbox} type="email" bind:value={$form.email} bind:error={$errors.email}  />
+                <LoginInput name="username" placeholder="Username" icon={badge} bind:value={$form.username} bind:error={$errors.username}  />
                 <LoginInput name="password" placeholder="Password" icon={shield} type="password" bind:value={$form.password} bind:error={$errors.password} />
+                <LoginInput name="passwordRepeat" placeholder="Repeat Password" icon={shieldCheck} type="password" bind:value={$form.passwordRepeat} bind:error={$errors.passwordRepeat} />
+                <label class="usetfa" for="usetfa">
+                    <p>Allow 2 factor authentication.</p>
+                    <CheckBox name="tfa" id="usetfa" bind:checked={$form.tfa} />
+                </label>
                 <button class="more-border" on:click={() => loading=true}>
                     {#if loading}
                         <div class="tiny">
                             <TinyLoading />
                         </div>
+                    {:else if $form.tfa}
+                        Next
                     {:else}
-                        Login
+                        Signup
                     {/if}
                 </button>
-                <button class="more-border" type="button" on:click={() => loginStatus="quickLogin"}>Login to existing account</button>
-                <p>Don't have an account? <span><a href="/signup?redirect=/auth">Signup here!</a></span></p>
             </form>
         {/if}
     </section>
@@ -100,8 +113,14 @@
         box-shadow: rgba(17, 12, 46, 0.15) 0px 48px 100px 0px;
     }
 
+    .tfasetup {
+        width: 100%;
+        display: flex;
+        flex-direction: column;
+        gap: 20px;
+    }
+
     .form,
-    .buttons,
     .tfa {
         width: 100%;
         height: 100%;
@@ -125,6 +144,27 @@
         justify-content: space-between;
     }
 
+    .more-border {
+        border-radius: 100vh;
+    }
+
+    .usetfa {
+        display: flex;
+        width: 100%;
+        min-height: 40px;
+        align-items: center;
+        justify-content: space-between;
+        border: 1px solid #808080;
+        border-radius: 5px;
+        padding: 0 10px;
+    }
+
+    .usetfa p {
+        font-family: "George-Italic", sans-serif;
+        font-size: 1rem;
+        margin-top: 0;
+    }
+
     .error {
         color: #ff0000;
     }
@@ -144,10 +184,10 @@
         border-radius: 100vh;
     }
 
-    .bordered {
+    /* .bordered {
         background: none;
         border: 1px solid #86ff86;
-    }
+    } */
 
     button:hover {
         outline: 2px solid #86ff86;
@@ -158,12 +198,6 @@
         color: #000000;
         font-size: 0.9rem;
         margin-top: 20px;
-    }
-
-    a {
-        font-family: "George-Italic", sans-serif;
-        color: #86ff86;
-        font-weight: bold;
     }
 
     .confetti {

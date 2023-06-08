@@ -2,7 +2,7 @@
     export let icon: string;
     export let placeholder = "";
     export let name: string;
-    export let type: "text" | "password" = "text";
+    export let type: "text" | "password" | "email" = "text";
     export let value: string;
     export let error: string[] | undefined = undefined;
 
