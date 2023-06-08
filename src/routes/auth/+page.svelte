@@ -2,32 +2,66 @@
     import LoginInput from "../../lib/components/LoginInput.svelte";
     import { ConfettiExplosion } from 'svelte-confetti-explosion';
     import { superForm } from "sveltekit-superforms/client";
-	import { loginSchema } from "$lib/schemas/schemas";
+	import { loginSchema, quickAuthSchema } from "$lib/schemas/schemas";
     import person from "../../assets/person.svg";
     import shield from "../../assets/shield.svg";
     import { fade } from 'svelte/transition';
     import { page } from '$app/stores';
 	import Spinner from "$lib/components/Spinner.svelte";
 	import TinyLoading from "$lib/components/TinyLoading.svelte";
+	import { onDestroy } from "svelte";
 
     export let data;
-    const { form, errors, enhance, message } = superForm(data.form, {
-        validators: loginSchema
-    });
+    
+    const loginForm = superForm(data.form, { validators: loginSchema });
+    const quickAuthForm = superForm(data.quickForm, { validators: quickAuthSchema });
+    
+    let message: string;
+    let errors: any;
+    let form: any;
+    
+    let message2: string;
+    let errors2: any;
+    let form2: any;
+
+    const loginFormMessageUnsubscribe = loginForm.message.subscribe((value) => message=value);
+    const loginFormErrorsUnsubscribe = loginForm.errors.subscribe((value) => errors=value);
+    const loginFormFormUnsubscribe = loginForm.form.subscribe((value) => form=value);
+
+    const loginFormMessage2Unsubscribe = quickAuthForm.message.subscribe((value) => message2=value);
+    const loginFormErrors2Unsubscribe = quickAuthForm.errors.subscribe((value) => errors2=value);
+    const loginFormForm2Unsubscribe = quickAuthForm.form.subscribe((value) => form2=value);
+
+    form.website = data.website;
+    form.key = data.key;
+
+    form2.website = data.website;
+    form2.key = data.key;
+    form2.accessToken = data.accessToken;
 
     let loading = false;
+    let loading2 = false;
 
     $: {
         $page.status;
-        $message;
+        message;
+        message2;
+        loading2 = false;
         loading = false;
     }
 
     let loginStatus: "quickLogin" | "manualLogin" | "tfa" = "quickLogin";
 
-    // $: if (loginStatus !== "manualLogin") $message = undefined;
+    $: if (message === "tfa") loginStatus = "tfa";
 
-    $: if ($message === "tfa") loginStatus = "tfa";
+    onDestroy(() => {
+        loginFormMessageUnsubscribe();
+        loginFormErrorsUnsubscribe();
+        loginFormFormUnsubscribe();
+        loginFormMessage2Unsubscribe();
+        loginFormErrors2Unsubscribe();
+        loginFormForm2Unsubscribe();
+    });
 </script>
 
 <svelte:head>
@@ -38,7 +72,30 @@
     <section>
         {#if loginStatus==="quickLogin"}
             <div class="buttons" out:fade={{duration: 100}} in:fade={{delay: 100, duration: 100}}>
-                <button>Stephen</button>
+                {#if data.name && data.accessToken}
+                    <form class="quickForm" method="POST" use:quickAuthForm.enhance action="?/auth">
+                        {#if $page.status===200 && message2==="success"}
+                            <div class="confetti">
+                                <ConfettiExplosion />
+                            </div>
+                        {/if}
+                        {#if errors2.overall}
+                            <p class="error">{errors2.overall}</p>
+                        {/if}
+                        <input type="hidden" name="website" value={form2.website} />
+                        <input type="hidden" name="key" value={form2.key} />
+                        <input type="hidden" name="accessToken" value={form2.accessToken}>
+                        <button on:click={() => loading2 = true}>
+                            {#if loading2}
+                                <div class="tiny">
+                                    <TinyLoading />
+                                </div>
+                            {:else}
+                                {data.name}
+                            {/if}
+                        </button>
+                    </form>
+                {/if}
                 <button on:click={() => loginStatus="manualLogin"}>Login to a new account</button>
             </div>
         {:else if loginStatus==="tfa"}
@@ -48,17 +105,19 @@
                 <button class="bordered">Not starting? Click here</button>
             </div>
         {:else}
-            <form method="POST" use:enhance class="form" out:fade={{duration: 100}} in:fade={{delay: 100, duration: 100}}>
-                {#if $page.status===200 && $message==="success"}
+            <form method="POST" action="?/login" use:loginForm.enhance class="form" out:fade={{duration: 100}} in:fade={{delay: 100, duration: 100}}>
+                {#if $page.status===200 && message==="success"}
                     <div class="confetti">
                         <ConfettiExplosion />
                     </div>
                 {/if}
-                {#if $errors.overall}
-                    <p class="error">{$errors.overall}</p>
+                {#if errors.overall}
+                    <p class="error">{errors.overall}</p>
                 {/if}
-                <LoginInput name="username" placeholder="Username" icon={person} bind:value={$form.username} bind:error={$errors.username}  />
-                <LoginInput name="password" placeholder="Password" icon={shield} type="password" bind:value={$form.password} bind:error={$errors.password} />
+                <input type="hidden" name="website" value={form.website} />
+                <input type="hidden" name="key" value={form.key} />
+                <LoginInput name="username" placeholder="Username" icon={person} bind:value={form.username} bind:error={errors.username}  />
+                <LoginInput name="password" placeholder="Password" icon={shield} type="password" bind:value={form.password} bind:error={errors.password} />
                 <button class="more-border" on:click={() => loading=true}>
                     {#if loading}
                         <div class="tiny">
@@ -98,6 +157,10 @@
         background-color: #ffffff;
         overflow: hidden;
         box-shadow: rgba(17, 12, 46, 0.15) 0px 48px 100px 0px;
+    }
+
+    .quickForm {
+        width: 100%;
     }
 
     .form,

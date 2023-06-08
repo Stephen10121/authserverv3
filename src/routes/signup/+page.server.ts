@@ -64,6 +64,6 @@ export const actions = {
         const redirectParameter = event.url.searchParams.get("redirect");
         if (redirectParameter) throw redirect(307, redirectParameter);
         
-        return message(form, 'success');
+        throw redirect(307, "dashboard");
     }
 }
