@@ -14,6 +14,7 @@
 	import Spinner from "$lib/components/Spinner.svelte";
 	import TinyLoading from "$lib/components/TinyLoading.svelte";
 	import CheckBox from "$lib/components/CheckBox.svelte";
+    import { startRegistration } from '@simplewebauthn/browser';
 
     export let data;
 
@@ -22,6 +23,7 @@
     });
 
     let loading = false;
+    let currentlyRegistering = false;
 
     $: {
         $page.status;
@@ -34,6 +36,80 @@
     // $: if (loginStatus !== "manualLogin") $message = undefined;
 
     $: if ($message === "tfa") pageStatus = "tfa";
+
+    let tfaKeyName: string;
+    let tfaKeyNameError: string;
+
+    async function begintfamethod() {
+        currentlyRegistering = true;
+        tfaKeyNameError = "";
+        if (!tfaKeyName || tfaKeyName===undefined || tfaKeyName ==="") {
+            tfaKeyNameError = "Name the 2fa Method.";
+            return;
+        }
+
+        // GET registration options from the endpoint that calls
+        // @simplewebauthn/server -> generateRegistrationOptions()
+        const resp = await fetch(`/api/getRegistrationOptions`);
+        const respJSON = await resp.json()
+        console.log(respJSON);
+        let attResp: any;
+        try {
+            // Pass the options to the authenticator and wait for a response
+            attResp = await startRegistration(respJSON);
+            attResp.keyName = tfaKeyName;
+        } catch (error) {
+            //@ts-ignore
+            if (error.name === 'InvalidStateError') {
+                tfaKeyNameError = 'Error: Authenticator was probably already registered by user';
+            } else {
+                tfaKeyNameError = "Cannot create key. Check console.";
+            }
+
+            throw error;
+        }
+
+        // POST the response to the endpoint that calls
+        // @simplewebauthn/server -> verifyRegistrationResponse()
+        const verificationResp = await fetch('/api/register', {
+            method: 'POST',
+            headers: {
+            'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(attResp),
+        });
+
+        // Wait for the results of verification
+        const verificationJSON = await verificationResp.json();
+        // Show UI appropriate for the `verified` status
+        if (!!verificationJSON) {
+            tfaKeyNameError = 'Success!';
+        } else {
+            tfaKeyNameError = 'Oh no, something went wrong! Check console.';
+            console.log(verificationJSON);
+        }
+    }
+
+    async function cancel() {
+        try {
+            const cancelRequest = await fetch('/api/canceltfa', { method: "POST" });
+            const cancelRequestJSON = await cancelRequest.json();
+
+            if (!cancelRequestJSON) {
+                tfaKeyNameError = "An error occured. Please refresh.";
+                return;
+            }
+            if (cancelRequestJSON.data.error) {
+                tfaKeyNameError = cancelRequestJSON.data.error;
+                return;
+            }
+        } catch (err) {
+            console.error(err);
+            tfaKeyNameError = "An error occured. Please refresh.";
+            return;
+        }
+        window.location.href = "/";
+    }
 </script>
 
 <svelte:head>
@@ -46,11 +122,14 @@
             <div class="tfa" out:fade={{duration: 100}} in:fade={{delay: 100, duration: 100}}>
                 <h2>Setup 2 factor verification!</h2>
                 <div class="tfasetup">
-                    <LoginInput name="tfaname" placeholder="2fa Method Name (e.g., Macbook Fingerprint.)" icon={tfaname} bind:value={$form.name} bind:error={$errors.name}  />
-                    <button class="more-border">Begin</button>
-                    <button class="more-border">Cancel and Signup</button>
+                    {#if currentlyRegistering}
+                    <Spinner />
+                    {:else}
+                    <LoginInput name="tfaname" placeholder="2fa Method Name (e.g., Macbook Fingerprint.)" icon={tfaname} bind:value={tfaKeyName} bind:error={tfaKeyNameError}  />
+                    <button class="more-border" on:click={begintfamethod}>Begin</button>
+                    {/if}
+                    <button class="more-border" on:click={cancel}>Cancel and Signup</button>
                 </div>
-                <!-- <Spinner /> -->
                 <div></div>
             </div>
         {:else}

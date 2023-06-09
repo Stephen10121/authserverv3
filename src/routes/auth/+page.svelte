@@ -15,7 +15,7 @@
     
     const loginForm = superForm(data.form, { validators: loginSchema });
     const quickAuthForm = superForm(data.quickForm, { validators: quickAuthSchema });
-    
+
     let message: string;
     let errors: any;
     let form: any;
@@ -128,7 +128,7 @@
                     {/if}
                 </button>
                 <button class="more-border" type="button" on:click={() => loginStatus="quickLogin"}>Login to existing account</button>
-                <p>Don't have an account? <span><a href="/signup?redirect=/auth">Signup here!</a></span></p>
+                <p>Don't have an account? <span><a href="/signup?redirect={encodeURIComponent($page.url.pathname+$page.url.search)}">Signup here!</a></span></p>
             </form>
         {/if}
     </section>
