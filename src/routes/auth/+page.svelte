@@ -10,6 +10,8 @@
 	import Spinner from "$lib/components/Spinner.svelte";
 	import TinyLoading from "$lib/components/TinyLoading.svelte";
 	import { onDestroy } from "svelte";
+	import { startAuthentication } from "@simplewebauthn/browser";
+	import { goto } from "$app/navigation";
 
     export let data;
     
@@ -43,6 +45,7 @@
     let loading2 = false;
 
     $: {
+        console.log({status: $page.status, message, message2})
         $page.status;
         message;
         message2;
@@ -52,7 +55,10 @@
 
     let loginStatus: "quickLogin" | "manualLogin" | "tfa" = "quickLogin";
 
-    $: if (message === "tfa") loginStatus = "tfa";
+    $: if (message === "tfa" || message2 === "tfa") {
+        loginStatus = "tfa";
+        tfaSend();
+    }
 
     onDestroy(() => {
         loginFormMessageUnsubscribe();
@@ -62,6 +68,60 @@
         loginFormErrors2Unsubscribe();
         loginFormForm2Unsubscribe();
     });
+
+    let tfaerror = "";
+
+    async function tfaSend() {
+        const resp = await fetch('/api/getAuthenticationOptions');
+
+        let asseResp;
+        try {
+            // Pass the options to the authenticator and wait for a response
+            asseResp = await startAuthentication(await resp.json());
+        } catch (error) {
+            // Some basic error handling
+            tfaerror = error as string;
+            console.error(error);
+        }
+
+        // POST the response to the endpoint that calls
+        // @simplewebauthn/server -> verifyAuthenticationResponse()
+        const verificationResp = await fetch('/api/startAuthentication', {
+            method: 'POST',
+            headers: {
+            'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({asseResp, userData: {
+                key: data.key,
+                website: data.website
+            }}),
+        });
+
+        // Wait for the results of verification
+        let verificationJSON: any;
+        try {
+            verificationJSON = await verificationResp.json();
+        } catch(_err) {
+            console.log(await verificationResp.text());
+        }
+
+        if (!verificationJSON) {
+            console.log("no verification response")
+        }
+        
+        if (verificationJSON.blacklist) {
+            tfaerror = "BlackListed";
+            return;
+        }
+
+        if (verificationJSON.msg === "success") {
+            window.close();
+            goto("/");
+        } else {
+            tfaerror = 'Oh no, something went wrong! Check console.';
+            console.log(verificationJSON);
+        }
+    }
 </script>
 
 <svelte:head>
@@ -101,6 +161,9 @@
         {:else if loginStatus==="tfa"}
             <div class="tfa" out:fade={{duration: 100}} in:fade={{delay: 100, duration: 100}}>
                 <h2>2 factor verification is enabled!</h2>
+                {#if tfaerror}
+                    <p>{tfaerror}</p>
+                {/if}
                 <Spinner />
                 <button class="bordered">Not starting? Click here</button>
             </div>

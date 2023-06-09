@@ -1,6 +1,6 @@
 import { getUserCurrentChallenge, getUserFromDB, type Authenticator, type UserModel, addNewDevice } from '$lib/server/twofactor';
 import { verifyRegistrationResponse, type VerifiedRegistrationResponse } from '@simplewebauthn/server';
-import { error } from '@sveltejs/kit';
+import { error, redirect } from '@sveltejs/kit';
 import { verify } from 'jsonwebtoken';
 
 // Human-readable title for your website
@@ -70,6 +70,7 @@ export async function POST({ request, cookies }) {
     
     if (verified && registrationInfo) {
         const { credentialPublicKey, credentialID, counter } = registrationInfo;
+        console.log({credentialPublicKey, credentialID: credentialID.toString()});
     
         const existingDevice = user.devices.find(device => device.credentialID===credentialID);
     
@@ -80,8 +81,8 @@ export async function POST({ request, cookies }) {
         console.log({bodyTransports: body.transports, body});
         const newDevice: Authenticator = {
             id: 1,
-            credentialPublicKey,
-            credentialID,
+            credentialPublicKey: JSON.parse("["+credentialPublicKey.toString()+"]"),
+            credentialID: JSON.parse("["+ credentialID.toString()+"]"),
             counter,
             transports: body.transports,
             owner: user.id,

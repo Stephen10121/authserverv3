@@ -31,24 +31,24 @@ export async function getUserFromDB(id: number) {
     const user = await prisma.user.findFirst({ where: { id } });
     if (!user) return false;
 
-    let devices = await prisma.key.findMany({ where: { owner: id.toString() } });
+    let devices = await prisma.key.findMany({ where: { owner: id.toString() } }) as any as { id: number, owner: string, authenticator: number }[];
+
     let newDevices: Authenticator[] = [];
 
     for (let i=0; i<devices.length; i++) {
-        //@ts-ignore
         let newAuth = await prisma.keysAuthenticator.findFirst({where : {id: devices[i].authenticator}});
         if (!newAuth) {
             continue
         }
         let newNewAuth: Authenticator = {
-            transports: JSON.parse(newAuth.transports),
+            transports: newAuth.transports.length>0 ? JSON.parse(newAuth.transports) : undefined,
             id: newAuth.id,
             counter: newAuth.counter,
             owner: newAuth.owner,
             blacklist: newAuth.blacklist,
             name: newAuth.name,
-            credentialID: Buffer.from(newAuth.credentialId, "utf-8"),
-            credentialPublicKey: Buffer.from(newAuth.credentialPublicKey, "utf-8")
+            credentialID: JSON.parse(newAuth.credentialId),
+            credentialPublicKey: JSON.parse(newAuth.credentialPublicKey)
         }
         newDevices.push(newNewAuth);
     }
@@ -84,8 +84,8 @@ export async function addNewDevice(device: Authenticator) {
         console.log(device.transports);
         const addedAuthenticator = await prisma.keysAuthenticator.create({
             data: {
-                credentialId: device.credentialID.toString(),
-                credentialPublicKey: device.credentialPublicKey.toString(),
+                credentialId: "["+device.credentialID.toString()+"]",
+                credentialPublicKey: "["+device.credentialPublicKey.toString()+"]",
                 counter: device.counter,
                 transports: device.transports ? JSON.stringify(device.transports) : "",
                 owner: device.owner,

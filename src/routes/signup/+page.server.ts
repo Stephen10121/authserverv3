@@ -8,8 +8,9 @@ import { createRefreshToken } from "$lib/server/token.js";
 
 export async function load(event) {
     const form = await superValidate(event, signupSchema);
+    const redirectParameter = event.url.searchParams.get("redirect");
 
-    return { form }
+    return { form, redirect: redirectParameter ? redirectParameter : "/dashboard" }
 }
 
 export const actions = {

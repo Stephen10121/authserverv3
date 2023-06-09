@@ -15,6 +15,7 @@
 	import TinyLoading from "$lib/components/TinyLoading.svelte";
 	import CheckBox from "$lib/components/CheckBox.svelte";
     import { startRegistration } from '@simplewebauthn/browser';
+    import { goto } from '$app/navigation';
 
     export let data;
 
@@ -82,7 +83,9 @@
         // Wait for the results of verification
         const verificationJSON = await verificationResp.json();
         // Show UI appropriate for the `verified` status
+        console.log(verificationJSON)
         if (!!verificationJSON) {
+            goto(data.redirect);
             tfaKeyNameError = 'Success!';
         } else {
             tfaKeyNameError = 'Oh no, something went wrong! Check console.';
@@ -108,7 +111,7 @@
             tfaKeyNameError = "An error occured. Please refresh.";
             return;
         }
-        window.location.href = "/";
+        goto(data.redirect);
     }
 </script>
 
@@ -127,10 +130,16 @@
                     {:else}
                     <LoginInput name="tfaname" placeholder="2fa Method Name (e.g., Macbook Fingerprint.)" icon={tfaname} bind:value={tfaKeyName} bind:error={tfaKeyNameError}  />
                     <button class="more-border" on:click={begintfamethod}>Begin</button>
+                    {#if !currentlyRegistering}
+                        <button class="more-border" on:click={cancel}>Cancel and Signup</button>
                     {/if}
-                    <button class="more-border" on:click={cancel}>Cancel and Signup</button>
+                    {/if}
                 </div>
-                <div></div>
+                {#if currentlyRegistering}
+                    <button class="more-border" on:click={cancel}>Cancel and Signup</button>
+                {:else}
+                    <div />
+                {/if}
             </div>
         {:else}
             <form method="POST" use:enhance class="form" out:fade={{duration: 100}} in:fade={{delay: 100, duration: 100}}>
@@ -196,6 +205,7 @@
         width: 100%;
         display: flex;
         flex-direction: column;
+        align-items: center;
         gap: 20px;
     }
 
