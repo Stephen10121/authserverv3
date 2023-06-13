@@ -1,82 +1,28 @@
 <script lang="ts">
-    import LoginInput from "../../lib/components/LoginInput.svelte";
-    import { ConfettiExplosion } from 'svelte-confetti-explosion';
-    import { superForm } from "sveltekit-superforms/client";
-	import { loginSchema, quickAuthSchema } from "$lib/schemas/schemas";
-    import person from "../../assets/person.svg";
-    import shield from "../../assets/shield.svg";
     import { fade } from 'svelte/transition';
     import { page } from '$app/stores';
 	import Spinner from "$lib/components/Spinner.svelte";
-	import TinyLoading from "$lib/components/TinyLoading.svelte";
-	import { onDestroy } from "svelte";
 	import { startAuthentication } from "@simplewebauthn/browser";
 	import { goto } from "$app/navigation";
+	import QuickLogin from "$lib/components/QuickLogin.svelte";
+	import Login from "$lib/components/Login.svelte";
 
     export let data;
     
-    const loginForm = superForm(data.form, { validators: loginSchema });
-    const quickAuthForm = superForm(data.quickForm, { validators: quickAuthSchema });
-
-    let message: string;
-    let errors: any;
-    let form: any;
-    
-    let message2: string;
-    let errors2: any;
-    let form2: any;
-
     const redirectInstead = new URLSearchParams($page.url.search).get("type");
 
-    const loginFormMessageUnsubscribe = loginForm.message.subscribe((value) => message=value);
-    const loginFormErrorsUnsubscribe = loginForm.errors.subscribe((value) => errors=value);
-    const loginFormFormUnsubscribe = loginForm.form.subscribe((value) => form=value);
-
-    const loginFormMessage2Unsubscribe = quickAuthForm.message.subscribe((value) => message2=value);
-    const loginFormErrors2Unsubscribe = quickAuthForm.errors.subscribe((value) => errors2=value);
-    const loginFormForm2Unsubscribe = quickAuthForm.form.subscribe((value) => form2=value);
-
-    form.websiteId = data.website;
-    form.key = data.key;
-    form.type = redirectInstead;
-
-    form2.websiteId = data.website;
-    form2.key = data.key;
-    form2.type = redirectInstead;
-    form2.accessToken = data.accessToken;
-
-    let loading = false;
-    let loading2 = false;
-
     $: {
-        $page.status;
-        message;
-        message2;
-        loading2 = false;
-        loading = false;
+        if (loginStatus==='tfa') {
+            tfaSend();
+        }
     }
 
     let loginStatus: "quickLogin" | "manualLogin" | "tfa" = "quickLogin";
-
-    $: if (message === "tfa" || message2 === "tfa") {
-        loginStatus = "tfa";
-        tfaSend();
-    }
-
-    onDestroy(() => {
-        loginFormMessageUnsubscribe();
-        loginFormErrorsUnsubscribe();
-        loginFormFormUnsubscribe();
-        loginFormMessage2Unsubscribe();
-        loginFormErrors2Unsubscribe();
-        loginFormForm2Unsubscribe();
-    });
-
     let tfaerror = "";
 
     async function tfaSend() {
         const resp = await fetch('/api/getAuthenticationOptions');
-
+        console.log({resp})
         let asseResp;
         try {
             // Pass the options to the authenticator and wait for a response
@@ -97,7 +43,7 @@
             body: JSON.stringify({asseResp, userData: {
                 key: data.key,
                 website: data.website,
-                redirectTo: redirectInstead
+                type: redirectInstead
             }}),
         });
 
@@ -154,34 +100,7 @@
 <main>
     <section>
         {#if loginStatus==="quickLogin"}
-            <div class="buttons" out:fade={{duration: 100}} in:fade={{delay: 100, duration: 100}}>
-                {#if data.name && data.accessToken}
-                    <form class="quickForm" method="POST" use:quickAuthForm.enhance action="?/auth">
-                        {#if $page.status===200 && message2==="success"}
-                            <div class="confetti">
-                                <ConfettiExplosion />
-                            </div>
-                        {/if}
-                        {#if errors2.overall}
-                            <p class="error">{errors2.overall}</p>
-                        {/if}
-                        <input type="hidden" name="websiteId" value={form2.websiteId} />
-                        <input type="hidden" name="key" value={form2.key} />
-                        <input type="hidden" name="type" value={form.type} />
-                        <input type="hidden" name="accessToken" value={form2.accessToken}>
-                        <button on:click={() => loading2 = true}>
-                            {#if loading2}
-                                <div class="tiny">
-                                    <TinyLoading />
-                                </div>
-                            {:else}
-                                {data.name}
-                            {/if}
-                        </button>
-                    </form>
-                {/if}
-                <button on:click={() => loginStatus="manualLogin"}>Login to a new account</button>
-            </div>
+            <QuickLogin bind:loginStatus quickForm={data.quickForm} name={data.name} accessToken={data.accessToken} website={data.website} key={data.key} />
         {:else if loginStatus==="tfa"}
             <div class="tfa" out:fade={{duration: 100}} in:fade={{delay: 100, duration: 100}}>
                 <h2>2 factor verification is enabled!</h2>
@@ -192,32 +111,7 @@
                 <button class="bordered">Not starting? Click here</button>
             </div>
         {:else}
-            <form method="POST" action="?/login" use:loginForm.enhance class="form" out:fade={{duration: 100}} in:fade={{delay: 100, duration: 100}}>
-                {#if $page.status===200 && message==="success"}
-                    <div class="confetti">
-                        <ConfettiExplosion />
-                    </div>
-                {/if}
-                {#if errors.overall}
-                    <p class="error">{errors.overall}</p>
-                {/if}
-                <input type="hidden" name="websiteId" value={form.websiteId} />
-                <input type="hidden" name="key" value={form.key} />
-                <input type="hidden" name="type" value={form.type} />
-                <LoginInput name="username" placeholder="Username" icon={person} bind:value={form.username} bind:error={errors.username}  />
-                <LoginInput name="password" placeholder="Password" icon={shield} type="password" bind:value={form.password} bind:error={errors.password} />
-                <button class="more-border" on:click={() => loading=true}>
-                    {#if loading}
-                        <div class="tiny">
-                            <TinyLoading />
-                        </div>
-                    {:else}
-                        Login
-                    {/if}
-                </button>
-                <button class="more-border" type="button" on:click={() => loginStatus="quickLogin"}>Login to existing account</button>
-                <p>Don't have an account? <span><a href="/signup?redirect={encodeURIComponent($page.url.pathname+$page.url.search)}">Signup here!</a></span></p>
-            </form>
+            <Login bind:loginStatus manualForm={data.form} website={data.website} key={data.key} />
         {/if}
     </section>
 </main>
@@ -247,12 +141,6 @@
         box-shadow: rgba(17, 12, 46, 0.15) 0px 48px 100px 0px;
     }
 
-    .quickForm {
-        width: 100%;
-    }
-
-    .form,
-    .buttons,
     .tfa {
         width: 100%;
         height: 100%;
@@ -264,20 +152,8 @@
         gap: 20px;
     }
 
-    .tiny {
-        width: 100%;
-        height: 100%;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-    }
-
     .tfa {
         justify-content: space-between;
-    }
-
-    .error {
-        color: #ff0000;
     }
 
     button {
@@ -289,10 +165,6 @@
         font-family: "George-Italic", sans-serif;
         font-size: 1rem;
         cursor: pointer;
-    }
-
-    .more-border {
-        border-radius: 100vh;
     }
 
     .bordered {
@@ -309,25 +181,6 @@
         color: #000000;
         font-size: 0.9rem;
         margin-top: 20px;
-    }
-
-    a {
-        font-family: "George-Italic", sans-serif;
-        color: #86ff86;
-        font-weight: bold;
-    }
-
-    .confetti {
-        width: 100%;
-        height: 100%;
-        position: absolute;
-        top: 0;
-        left: 0;
-        overflow: hidden;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        pointer-events: none;
     }
 
     h2 {

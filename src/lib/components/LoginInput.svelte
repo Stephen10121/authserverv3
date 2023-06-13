@@ -4,7 +4,7 @@
     export let name: string;
     export let type: "text" | "password" | "email" = "text";
     export let value: string;
-    export let error: string[] | undefined | string = undefined;
+    export let error: any = undefined;
 
     function typeAction(node: HTMLInputElement) {
         node.type = type;

@@ -45,6 +45,16 @@ export default async function tfaChecker(user: User, form: any) {
 
     if (form.data.type === "redirect") {
         const userData = await getOtherWebsiteKey(form.data.websiteId, user.id.toString(), registeredSite.id);
+        if (userData === "blacklist" || userData==="nonregister") {
+            await prisma.user.update({
+                where: {
+                    id: user.id
+                },
+                data: {
+                    failedLogins: user.failedLogins + 1
+                }
+            });
+        }
         if (userData === "blacklist") return message(form, 'blacklist');
         if (userData === "nonregister") return message(form, 'nonregister');
 
@@ -79,6 +89,14 @@ export default async function tfaChecker(user: User, form: any) {
         return message(form, 'blacklist');
     }
     if (requestSender === "nonregister") {
+        await prisma.user.update({
+            where: {
+                id: user.id
+            },
+            data: {
+                failedLogins: user.failedLogins + 1
+            }
+        });
         return message(form, 'nonregister');
     }
     await prisma.user.update({

@@ -4,6 +4,7 @@ import { error, json, redirect } from "@sveltejs/kit";
 import { prisma } from "$lib/server/prisma";
 import { verify } from "jsonwebtoken";
 import sendRequest, { getOtherWebsiteKey } from "$lib/server/sendRequest";
+import type { RegisteredSite } from "@prisma/client";
 
 // Human-readable title for your website
 const rpName = 'GruzAuth';
@@ -105,9 +106,23 @@ export async function POST(event) {
             popularSites: JSON.stringify(popularSites)
         }
     });
-    if (body.userData.redirectTo) {
-        const userData = await getOtherWebsiteKey(body.userData.website, user2.userName);
-        if (userData === "false") {
+
+    let registeredSite: RegisteredSite | null = null;
+    try {
+        registeredSite = await prisma.registeredSite.findFirst({where: {unique: body.userData.website}});
+    } catch (err) {
+        console.log(err);
+        throw error(400, 'nonregister');
+    }
+    if (!registeredSite) {
+        throw error(400, 'nonregister');
+    }
+    const url = registeredSite.url;
+
+    if (body.userData.type === "redirect") {
+        const userData = await getOtherWebsiteKey(body.userData.website, user.id.toString(), registeredSite.id);
+        
+        if (userData === "blacklist" || userData==="nonregister") {
             await prisma.user.update({
                 where: {
                     id: user2.id
@@ -116,8 +131,10 @@ export async function POST(event) {
                     failedLogins: user2.failedLogins + 1
                 }
             });
-            throw error(400, 'blacklist');
         }
+        if (userData === "blacklist") throw error(400, 'blacklist');
+        if (userData === "nonregister") throw error(400, 'nonregister');
+
         await prisma.user.update({
             where: {
                 id: user2.id
@@ -126,17 +143,29 @@ export async function POST(event) {
                 successLogins: user2.successLogins + 1
             }
         });
-
+        console.log(`[server] Sending data to ${body.userData.website} after tfa`);
         return json({ redirect: {
             data: userData,
             key: body.userData.key,
             name: user2.name,
             email: user2.email,
             username: user2.userName,
-            where: body.userData.redirectTo,
+            where: url,
             msg: "success"
-        } });
-    } else if (await sendRequest(body.userData.website, body.userData.key, user2.name, user2.email, user2.userName) === "blacklist") {
+        }});
+
+    }
+    const requestSender = await sendRequest({
+        websiteId: body.userData.website,
+        url,
+        key: body.userData.key,
+        username: user2.userName,
+        email: user2.email,
+        name: user2.name,
+        siteId: registeredSite.id,
+        userId: user.id.toString()
+    });
+    if (requestSender === "blacklist") {
         await prisma.user.update({
             where: {
                 id: user2.id
@@ -146,6 +175,17 @@ export async function POST(event) {
             }
         });
         throw error(400, 'blacklist');
+    }
+    if (requestSender === "nonregister") {
+        await prisma.user.update({
+            where: {
+                id: user2.id
+            },
+            data: {
+                failedLogins: user2.failedLogins + 1
+            }
+        });
+        throw error(400, 'nonregister');
     }
     console.log("Sucess login");
     await prisma.user.update({

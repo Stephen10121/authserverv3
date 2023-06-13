@@ -52,7 +52,6 @@ export async function load({ cookies }) {
     let siteArray: Sites[] = [];
     try {
         siteArray = await prisma.sites.findMany({ where: { owner: superUser.id.toString() } });
-        console.log({siteArray})
     } catch (err) {
         console.log({siteArrayLookupError: err});
         cookies.delete("G_PERS");
