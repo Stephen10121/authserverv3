@@ -1,5 +1,5 @@
 <script lang="ts">
-	import LoginButton from "../../lib/components/LoginButton.svelte";
-
+	import LoginLink from "$lib/components/LoginLink.svelte";
 </script>
-<LoginButton on:click={console.log}/>
+
+<LoginLink href="/auth?websiteId=gruzauth&key=efewknfkjcne&type=redirect" />

@@ -1,9 +1,9 @@
 import { getUserAuthenticator, getUserFromDB, saveUpdatedAuthenticatorCounter, type UserModel } from "$lib/server/twofactor";
 import { verifyAuthenticationResponse } from "@simplewebauthn/server";
-import { error } from "@sveltejs/kit";
+import { error, json, redirect } from "@sveltejs/kit";
 import { prisma } from "$lib/server/prisma";
 import { verify } from "jsonwebtoken";
-import sendRequest from "$lib/server/sendRequest";
+import sendRequest, { getOtherWebsiteKey } from "$lib/server/sendRequest";
 
 // Human-readable title for your website
 const rpName = 'GruzAuth';
@@ -105,8 +105,38 @@ export async function POST(event) {
             popularSites: JSON.stringify(popularSites)
         }
     });
-    
-    if (await sendRequest(body.userData.website, body.userData.key, user2.name, user2.email, user2.userName) === "blacklist") {
+    if (body.userData.redirectTo) {
+        const userData = await getOtherWebsiteKey(body.userData.website, user2.userName);
+        if (userData === "false") {
+            await prisma.user.update({
+                where: {
+                    id: user2.id
+                },
+                data: {
+                    failedLogins: user2.failedLogins + 1
+                }
+            });
+            throw error(400, 'blacklist');
+        }
+        await prisma.user.update({
+            where: {
+                id: user2.id
+            },
+            data: {
+                successLogins: user2.successLogins + 1
+            }
+        });
+
+        return json({ redirect: {
+            data: userData,
+            key: body.userData.key,
+            name: user2.name,
+            email: user2.email,
+            username: user2.userName,
+            where: body.userData.redirectTo,
+            msg: "success"
+        } });
+    } else if (await sendRequest(body.userData.website, body.userData.key, user2.name, user2.email, user2.userName) === "blacklist") {
         await prisma.user.update({
             where: {
                 id: user2.id

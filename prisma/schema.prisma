@@ -13,7 +13,7 @@ datasource db {
 
 model User {
   id Int @id @default(autoincrement())
-  userName String
+  userName String @unique
   name String
   email String
   phone String
@@ -23,7 +23,7 @@ model User {
   failedLogins Int
   popularSites String
   currentChallenge String
-  tokenVersion Int
+  tokenVersion Int  
 }
 
 model KeysAuthenticator {
@@ -48,5 +48,23 @@ model Sites {
   owner String
   website String
   hash String
+  logins Int
   blacklist String
+}
+
+model MyUser {
+  id Int @id @default(autoincrement())
+  username String
+  hash String
+  name String
+  email String
+}
+
+model RegisteredSite {
+  id Int @id @default(autoincrement())
+  logins Int
+  url String
+  name String
+  unique String @unique
+  owner Int
 }

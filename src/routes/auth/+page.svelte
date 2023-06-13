@@ -26,6 +26,8 @@
     let errors2: any;
     let form2: any;
 
+    const redirectInstead = new URLSearchParams($page.url.search).get("type");
+
     const loginFormMessageUnsubscribe = loginForm.message.subscribe((value) => message=value);
     const loginFormErrorsUnsubscribe = loginForm.errors.subscribe((value) => errors=value);
     const loginFormFormUnsubscribe = loginForm.form.subscribe((value) => form=value);
@@ -34,18 +36,19 @@
     const loginFormErrors2Unsubscribe = quickAuthForm.errors.subscribe((value) => errors2=value);
     const loginFormForm2Unsubscribe = quickAuthForm.form.subscribe((value) => form2=value);
 
-    form.website = data.website;
+    form.websiteId = data.website;
     form.key = data.key;
+    form.type = redirectInstead;
 
-    form2.website = data.website;
+    form2.websiteId = data.website;
     form2.key = data.key;
+    form2.type = redirectInstead;
     form2.accessToken = data.accessToken;
 
     let loading = false;
     let loading2 = false;
 
     $: {
-        console.log({status: $page.status, message, message2})
         $page.status;
         message;
         message2;
@@ -93,7 +96,8 @@
             },
             body: JSON.stringify({asseResp, userData: {
                 key: data.key,
-                website: data.website
+                website: data.website,
+                redirectTo: redirectInstead
             }}),
         });
 
@@ -112,6 +116,25 @@
         if (verificationJSON.blacklist) {
             tfaerror = "BlackListed";
             return;
+        }
+
+        if (verificationJSON.redirect) {
+            const redirectData: {
+                data: string,
+                key: string,
+                name: string,
+                email: string,
+                username: string,
+                where: string
+            } = verificationJSON.redirect;
+            console.log(verificationJSON.redirect);
+            const newLocation = new URL(redirectData.where);
+            newLocation.searchParams.append("data", redirectData.data);
+            newLocation.searchParams.append("key", redirectData.key);
+            newLocation.searchParams.append("name", redirectData.name);
+            newLocation.searchParams.append("email", redirectData.email);
+            newLocation.searchParams.append("username", redirectData.username);
+            window.location.href=newLocation.href;
         }
 
         if (verificationJSON.msg === "success") {
@@ -142,8 +165,9 @@
                         {#if errors2.overall}
                             <p class="error">{errors2.overall}</p>
                         {/if}
-                        <input type="hidden" name="website" value={form2.website} />
+                        <input type="hidden" name="websiteId" value={form2.websiteId} />
                         <input type="hidden" name="key" value={form2.key} />
+                        <input type="hidden" name="type" value={form.type} />
                         <input type="hidden" name="accessToken" value={form2.accessToken}>
                         <button on:click={() => loading2 = true}>
                             {#if loading2}
@@ -177,8 +201,9 @@
                 {#if errors.overall}
                     <p class="error">{errors.overall}</p>
                 {/if}
-                <input type="hidden" name="website" value={form.website} />
+                <input type="hidden" name="websiteId" value={form.websiteId} />
                 <input type="hidden" name="key" value={form.key} />
+                <input type="hidden" name="type" value={form.type} />
                 <LoginInput name="username" placeholder="Username" icon={person} bind:value={form.username} bind:error={errors.username}  />
                 <LoginInput name="password" placeholder="Password" icon={shield} type="password" bind:value={form.password} bind:error={errors.password} />
                 <button class="more-border" on:click={() => loading=true}>
