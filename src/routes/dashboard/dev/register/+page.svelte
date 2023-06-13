@@ -11,7 +11,6 @@
     let loading = false;
 
     $: {
-        console.log({status: $page.status, message})
         $page.status;
         message;
         loading = false;

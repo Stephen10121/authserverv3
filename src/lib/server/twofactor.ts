@@ -81,7 +81,6 @@ export async function getUserCurrentChallenge(user: UserModel) {
 
 export async function addNewDevice(device: Authenticator) {
     try {
-        console.log(device.transports);
         const addedAuthenticator = await prisma.keysAuthenticator.create({
             data: {
                 credentialId: "["+device.credentialID.toString()+"]",

@@ -17,7 +17,6 @@ export async function GET(event) {
     }
 
     if (!payload2) throw error(400, "Invalid token.");
-    console.log(payload2.userId);
     let user: UserModel | false = await getUserFromDB(payload2.userId);
     
     if (!user) {
@@ -30,12 +29,12 @@ export async function GET(event) {
     
     const options = generateAuthenticationOptions({
         // Require users to use a previously-registered authenticator
-        allowCredentials: userAuthenticators.map(authenticator => {console.log({gottenCredid:authenticator.credentialID});return({
+        allowCredentials: userAuthenticators.map(authenticator => ({
             id: authenticator.credentialID,
             type: 'public-key',
             // Optional
             transports: authenticator.transports,
-        })}),
+        })),
         userVerification: 'preferred',
     });
     
@@ -43,8 +42,6 @@ export async function GET(event) {
     if (!await setUserCurrentChallenge(user, options.challenge)) {
         throw error(400, "Error Saving Challenge.");
     }
-
-    console.log({options});
 
     return new Response(JSON.stringify(options));
 }

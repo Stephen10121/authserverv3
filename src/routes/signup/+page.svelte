@@ -52,8 +52,8 @@
         // GET registration options from the endpoint that calls
         // @simplewebauthn/server -> generateRegistrationOptions()
         const resp = await fetch(`/api/getRegistrationOptions`);
-        const respJSON = await resp.json()
-        console.log(respJSON);
+        const respJSON = await resp.json();
+
         let attResp: any;
         try {
             // Pass the options to the authenticator and wait for a response
@@ -83,7 +83,7 @@
         // Wait for the results of verification
         const verificationJSON = await verificationResp.json();
         // Show UI appropriate for the `verified` status
-        console.log(verificationJSON)
+        
         if (!!verificationJSON) {
             goto(data.redirect);
             tfaKeyNameError = 'Success!';

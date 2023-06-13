@@ -22,7 +22,7 @@
 
     async function tfaSend() {
         const resp = await fetch('/api/getAuthenticationOptions');
-        console.log({resp})
+        
         let asseResp;
         try {
             // Pass the options to the authenticator and wait for a response
@@ -73,7 +73,7 @@
                 username: string,
                 where: string
             } = verificationJSON.redirect;
-            console.log(verificationJSON.redirect);
+            
             const newLocation = new URL(redirectData.where);
             newLocation.searchParams.append("data", redirectData.data);
             newLocation.searchParams.append("key", redirectData.key);

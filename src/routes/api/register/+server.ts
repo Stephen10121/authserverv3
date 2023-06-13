@@ -70,7 +70,6 @@ export async function POST({ request, cookies }) {
     
     if (verified && registrationInfo) {
         const { credentialPublicKey, credentialID, counter } = registrationInfo;
-        console.log({credentialPublicKey, credentialID: credentialID.toString()});
     
         const existingDevice = user.devices.find(device => device.credentialID===credentialID);
     
@@ -78,7 +77,6 @@ export async function POST({ request, cookies }) {
         /**
          * Add the returned device to the user's list of devices
          */
-        console.log({bodyTransports: body.transports, body});
         const newDevice: Authenticator = {
             id: 1,
             credentialPublicKey: JSON.parse("["+credentialPublicKey.toString()+"]"),

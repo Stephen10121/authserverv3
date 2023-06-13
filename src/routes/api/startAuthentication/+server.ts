@@ -52,13 +52,6 @@ export async function POST(event) {
 
     let verification;
     try {
-        console.log({
-            credential: body.asseResp,
-            expectedChallenge,
-            expectedOrigin: origin,
-            expectedRPID: rpID,
-            authenticator
-        })
         verification = await verifyAuthenticationResponse({
             response: body.asseResp,
             expectedChallenge,
