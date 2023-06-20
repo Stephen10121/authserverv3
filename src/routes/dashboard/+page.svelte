@@ -4,6 +4,7 @@
 	import Stats from "$lib/components/Stats.svelte";
 	import { onDestroy } from "svelte";
 	import { notification } from "../../stores/notification.js";
+	import Sites from "$lib/components/Sites.svelte";
 	export let data;
 	
 	let setNotification: null | {type: "error" | "success", message: string} = null;
@@ -25,7 +26,7 @@
 		<Stats attempted={data.info.attemptedLogins} failed={data.info.failedLogins} subscriptions={data.info.sites.length} popular={data.info.mostPopular} />
 	</div>
 	<div class="three">
-		<!-- <Name name={data.info.userData.user} /> -->
+		<Sites />
 	</div>
 	<div class="four">
 		<!-- <Name name={data.info.userData.user} /> -->
@@ -35,11 +36,15 @@
 <style>
 	section {
 		width: 100%;
+		height: 100%;
 		padding: 20px;
-		display: grid;
-		column-gap: 10px;
+		display: flex;
+		flex-direction: column;
+		gap: 10px;
+		overflow-y: auto;
+		/* column-gap: 10px;
 		row-gap: 10px;
-		grid-template-areas: 'one two two two two' 'three three three four four';
+		grid-template-areas: 'one two two two two' 'three three three four four'; */
 	}
 
 	.one {

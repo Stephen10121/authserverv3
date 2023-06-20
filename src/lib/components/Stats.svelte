@@ -51,14 +51,15 @@
 <style>
     section {
         box-shadow: var(--shadow);
-        max-height: 250px;
-        height: 250px;
+        min-height: 250px;
         max-width: 100%;
+        padding: 20px;
         border-radius: 5px;
         display: grid;
         align-items: center;
-        justify-content: space-evenly;
-        grid-template-areas: "box1 box2" "box3 box4";
+        justify-content: start;
+        grid-template-areas: "box1" "box2" "box3" "box4";
+        row-gap: 20px;
         /* container-type: inline-size; */
     }
 
@@ -112,7 +113,13 @@
     #box3 {grid-area: box3;}
     #box4 {grid-area: box4;}
 
-    @media (min-width: 1200px) {
+    @media (min-width: 650px) {
+        section {
+            grid-template-areas: "box1 box2" "box3 box4";
+            justify-content: space-evenly;
+        }
+    }
+    @media (min-width: 1000px) {
         section {
             grid-template-areas: "box1 box2 box3 box4";
         }

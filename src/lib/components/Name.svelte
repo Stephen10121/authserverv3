@@ -29,8 +29,7 @@
 <style>
     section {
         box-shadow: var(--shadow);
-        max-height: 250px;
-        height: 250px;
+        min-height: 400px;
         max-width: 100%;
         border-radius: 5px;
         display: flex;
