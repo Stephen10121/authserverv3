@@ -17,6 +17,7 @@
   <svelte:window on:keydown={menuHandler} />
   
   <button
+    type="button"
     title="Menu (Ctrl + m)"
     class={active ? "is-active" : ""}
     on:click={() => {
