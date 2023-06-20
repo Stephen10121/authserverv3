@@ -1,4 +1,5 @@
-import { sign } from "jsonwebtoken";
+import pkg from "jsonwebtoken";
+const { sign } = pkg;
 
 export function createRefreshToken(userId: number) {
     return sign({ userId: userId }, import.meta.env.VITE_REFRESH_TOKEN_SECRET, {expiresIn: "7d"});

@@ -1,5 +1,6 @@
 import type { Sites } from "@prisma/client";
 import { createHash } from "crypto";
+import { prisma } from "$lib/server/prisma";
 
 export const hashed = (password: string) => {
     const hash = createHash('sha256').update(password).digest("hex");
@@ -8,13 +9,20 @@ export const hashed = (password: string) => {
 
 async function addSite(owner: string, website: string, siteId: number) {
     try {
+        const actualsite = await prisma.registeredSite.findFirst({
+            where: { id: siteId }
+        });
+        if (!actualsite) {
+            return false;
+        }
         await prisma.sites.create({
             data: {
                 owner,
                 website,
                 hash: hashed(hashed(owner)+hashed(website)+hashed(siteId.toString())),
                 blacklist: "false",
-                logins: 0
+                logins: 0,
+                name: actualsite.name
             }
         });
     } catch (err) {

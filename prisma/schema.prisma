@@ -50,6 +50,7 @@ model Sites {
   hash String
   logins Int
   blacklist String
+  name String
 }
 
 model MyUser {

@@ -1,6 +1,6 @@
 import { signupSchema } from "$lib/schemas/schemas";
 import { fail, redirect } from "@sveltejs/kit";
-import { prisma } from "$lib/server/prisma.js";
+import { prisma } from "$lib/server/prisma";
 import { hash } from "bcrypt";
 import { message, setError, superValidate } from "sveltekit-superforms/server";
 import { dev } from "$app/environment";
@@ -9,8 +9,8 @@ import { createRefreshToken } from "$lib/server/token.js";
 export async function load(event) {
     const form = await superValidate(event, signupSchema);
     const redirectParameter = event.url.searchParams.get("redirect");
-
-    return { form, redirect: redirectParameter ? redirectParameter : "/dashboard" }
+    
+    return { form, redirect: redirectParameter ? redirectParameter : "/" }
 }
 
 export const actions = {

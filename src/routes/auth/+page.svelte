@@ -8,7 +8,6 @@
 	import Login from "$lib/components/Login.svelte";
 
     export let data;
-    
     const redirectInstead = new URLSearchParams($page.url.search).get("type");
 
     $: {
@@ -81,6 +80,7 @@
             newLocation.searchParams.append("email", redirectData.email);
             newLocation.searchParams.append("username", redirectData.username);
             window.location.href=newLocation.href;
+            return
         }
 
         if (verificationJSON.msg === "success") {

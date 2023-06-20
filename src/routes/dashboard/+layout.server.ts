@@ -2,9 +2,17 @@ import { createAccessToken } from '$lib/server/token.js';
 import type { Key, MyUser, Sites, User } from '@prisma/client';
 import { redirect } from '@sveltejs/kit';
 import { verify } from "jsonwebtoken";
+import { dev } from '$app/environment';
+import { prisma } from "$lib/server/prisma";
 
 export async function load({ cookies }) {
     const refreshToken = cookies.get("G_PERS");
+    let theme = cookies.get("theme");
+    
+    if (!theme) {
+        cookies.set("theme", "system", {path: "/", secure: !dev, expires: new Date(2.04e12)});
+        theme = "system"
+    }
 
     if (!refreshToken) throw redirect(307, "/");
 
@@ -58,7 +66,9 @@ export async function load({ cookies }) {
         throw redirect(307, "/");
     }
 
-    const sites = siteArray.map((site) => ({ site: site.website, blackList: site.blacklist }));
+    const sites = siteArray.map((site) => {
+        return { site: site.website, blackList: site.blacklist, name: site.name };
+    });
     let success = 0;
     let failed = 0;
     let mostPopular;
@@ -109,9 +119,10 @@ export async function load({ cookies }) {
         tfa: superUser.tfa,
         tfaKeys: keyDataArray
     }
-
+    
     return {
         accessToken: createAccessToken(payload.userId),
-        info
+        info,
+        theme
     }
 }

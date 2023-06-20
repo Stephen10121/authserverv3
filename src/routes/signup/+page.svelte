@@ -34,8 +34,6 @@
 
     let pageStatus: "signup" | "tfa" = "signup";
 
-    // $: if (loginStatus !== "manualLogin") $message = undefined;
-
     $: if ($message === "tfa") pageStatus = "tfa";
 
     let tfaKeyName: string;
@@ -126,13 +124,13 @@
                 <h2>Setup 2 factor verification!</h2>
                 <div class="tfasetup">
                     {#if currentlyRegistering}
-                    <Spinner />
+                        <Spinner />
                     {:else}
-                    <LoginInput name="tfaname" placeholder="2fa Method Name (e.g., Macbook Fingerprint.)" icon={tfaname} bind:value={tfaKeyName} bind:error={tfaKeyNameError}  />
-                    <button class="more-border" on:click={begintfamethod}>Begin</button>
-                    {#if !currentlyRegistering}
-                        <button class="more-border" on:click={cancel}>Cancel and Signup</button>
-                    {/if}
+                        <LoginInput name="tfaname" placeholder="2fa Method Name (e.g., Macbook Fingerprint.)" icon={tfaname} bind:value={tfaKeyName} bind:error={tfaKeyNameError}  />
+                        <button class="more-border" on:click={begintfamethod}>Begin</button>
+                        {#if !currentlyRegistering}
+                            <button class="more-border" on:click={cancel}>Cancel and Signup</button>
+                        {/if}
                     {/if}
                 </div>
                 {#if currentlyRegistering}

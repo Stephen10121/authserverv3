@@ -121,7 +121,9 @@ export async function POST(event) {
                     id: user2.id
                 },
                 data: {
-                    failedLogins: user2.failedLogins + 1
+                    failedLogins: {
+                        increment: 1
+                    }
                 }
             });
         }
@@ -133,7 +135,9 @@ export async function POST(event) {
                 id: user2.id
             },
             data: {
-                successLogins: user2.successLogins + 1
+                successLogins: {
+                    increment: 1
+                }
             }
         });
         console.log(`[server] Sending data to ${body.userData.website} after tfa`);
@@ -164,7 +168,9 @@ export async function POST(event) {
                 id: user2.id
             },
             data: {
-                failedLogins: user2.failedLogins + 1
+                failedLogins: {
+                    increment: 1
+                }
             }
         });
         throw error(400, 'blacklist');
@@ -175,7 +181,9 @@ export async function POST(event) {
                 id: user2.id
             },
             data: {
-                failedLogins: user2.failedLogins + 1
+                failedLogins: {
+                    increment: 1
+                }
             }
         });
         throw error(400, 'nonregister');
@@ -186,7 +194,9 @@ export async function POST(event) {
             id: user2.id
         },
         data: {
-            successLogins: user2.successLogins + 1
+            successLogins: {
+                increment: 1
+            }
         }
     });
 

@@ -2,6 +2,7 @@ import type { RegisteredSite, User } from "@prisma/client";
 import { message } from "sveltekit-superforms/server";
 import sendRequest, { getOtherWebsiteKey } from "./sendRequest";
 import { redirect } from "@sveltejs/kit";
+import { prisma } from "$lib/server/prisma";
 /**
  * This checks if 2 factor authentication is available. If so, the user get notified, else the function returns a success message.
  */
@@ -51,7 +52,9 @@ export default async function tfaChecker(user: User, form: any) {
                     id: user.id
                 },
                 data: {
-                    failedLogins: user.failedLogins + 1
+                    failedLogins: {
+                        increment: 1
+                    }
                 }
             });
         }
@@ -65,6 +68,16 @@ export default async function tfaChecker(user: User, form: any) {
         newLocation.searchParams.append("name", user.name);
         newLocation.searchParams.append("email", user.email);
         newLocation.searchParams.append("username", user.userName);
+        await prisma.user.update({
+            where: {
+                id: user.id
+            },
+            data: {
+                successLogins: {
+                    increment: 1
+                }
+            }
+        });
         throw redirect(307, newLocation.href);
     }
     const requestSender = await sendRequest({
@@ -83,7 +96,9 @@ export default async function tfaChecker(user: User, form: any) {
                 id: user.id
             },
             data: {
-                failedLogins: user.failedLogins + 1
+                failedLogins: {
+                    increment: 1
+                }
             }
         });
         return message(form, 'blacklist');
@@ -94,7 +109,9 @@ export default async function tfaChecker(user: User, form: any) {
                 id: user.id
             },
             data: {
-                failedLogins: user.failedLogins + 1
+                failedLogins: {
+                    increment: 1
+                }
             }
         });
         return message(form, 'nonregister');
@@ -104,7 +121,9 @@ export default async function tfaChecker(user: User, form: any) {
             id: user.id
         },
         data: {
-            successLogins: user.successLogins + 1
+            successLogins: {
+                increment: 1
+            }
         }
     });
 

@@ -33,8 +33,6 @@ export async function load(event) {
     const refreshToken = event.cookies.get("G_VAR");
     if (!refreshToken) return defaultReturnValues
 
-
-
     let payload: { userId: number };
     try {
         payload = verify(refreshToken, import.meta.env.VITE_REFRESH_TOKEN_SECRET) as any as { userId: number };
