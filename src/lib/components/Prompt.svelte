@@ -34,7 +34,7 @@
         width: 100%;
         max-width: 800px;
         height: 60px;
-        background-color: #ffffff;
+        background-color: var(--nuetral-color);
         border-radius: 10px;
         display: flex;
         align-items: center;
@@ -92,9 +92,24 @@
     input {
         width: 100%;
         height: 40px;
-        border: 1px solid #000000;
+        border: 1px solid var(--nuetral-text-color);
         border-radius: 5px;
         font-family: "Roboto", sans-serif;
         padding: 0 5px;
+        background-color: var(--nuetral-color);
+        color: var(--nuetral-text-color);
+    }
+
+    input::placeholder { /* Chrome, Firefox, Opera, Safari 10.1+ */
+        color: var(--nuetral-text-color);
+        opacity: 1; /* Firefox */
+    }
+
+    input:-ms-input-placeholder { /* Internet Explorer 10-11 */
+        color: var(--nuetral-text-color);
+    }
+
+    input::-ms-input-placeholder { /* Microsoft Edge */
+        color: var(--nuetral-text-color);
     }
 </style>

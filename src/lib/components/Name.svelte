@@ -2,6 +2,7 @@
     import changeName from "$lib/functions/changeName.js";
     import Prompt from "$lib/components/Prompt.svelte";
 	import { notification } from "../../stores/notification";
+	import { invalidateAll } from "$app/navigation";
     export let name: string;
     export let token: string;
     let nameChange = false;
@@ -12,6 +13,7 @@
 		const changedName = await changeName(token, detail);
 		if (changedName.success) {
 			notification.set({type: "success", message: changedName.success});
+            invalidateAll();
 		}
 		if (changedName.error) {
 			notification.set({type: "error", message: changedName.error});
