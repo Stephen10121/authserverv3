@@ -7,9 +7,11 @@
     export let failed: number;
     export let subscriptions: number;
     export let popular: string;
+    export let popularId: string;
 </script>
 
 <section>
+    <p id="name">Statistics</p>
     <div class="box" id="box1">
         <div class="imgCover" style="--color:rgba(79, 0, 153, 0.7);">
             <img src={shieldLock} alt="Attempted Logins" />
@@ -34,7 +36,7 @@
         </div>
         <div class="text">
             <h4>Subscriptions</h4>
-            <p>{subscriptions}</p>
+            <a href="/dashboard/site">{subscriptions}</a>
         </div>
     </div>
     <div class="box" id="box4">
@@ -43,7 +45,7 @@
         </div>
         <div class="text">
             <h4>Most Popular</h4>
-            <p>{popular}</p>
+            <a href="/dashboard/site/{popularId}">{popular}</a>
         </div>
     </div>
 </section>
@@ -60,6 +62,7 @@
         justify-content: start;
         grid-template-areas: "box1" "box2" "box3" "box4";
         row-gap: 20px;
+        position: relative;
         /* container-type: inline-size; */
     }
 
@@ -101,7 +104,8 @@
         color: var(--nuetral-text-color);
     }
 
-    p {
+    .text p,
+    .text a {
         font-family: "Roboto", sans-serif;
         font-size: 0.75rem;
         font-weight: 500;
@@ -129,4 +133,15 @@
             grid-template-areas: "box1 box2 box3 box4";
         }
     } */
+    #name {
+        font-family: "Roboto", sans-serif;
+        font-size: 1rem;
+        font-weight: bold;
+        color: var(--nuetral-text-color);
+        margin-top: 10px;
+        margin-bottom: 10px;
+        position: absolute;
+        top: -5px;
+        left: 5px;
+    }
 </style>

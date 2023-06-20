@@ -4,6 +4,7 @@
 	import { testTheme } from "../../stores/theme.js";
 	import Hamburger from "$lib/components/Hamburger.svelte";
 	import Selector from "$lib/components/Selector.svelte";
+	import { page } from "$app/stores";
 
     export let data;
     
@@ -19,6 +20,11 @@
     ]
 
     let showSlideDown = false;
+
+    $: {
+        $page.url.pathname;
+        showSlideDown = false;
+    }
 
     async function setTheme() {
         fetch("/api/theme", {
@@ -51,8 +57,9 @@
                 <option value="system" selected={theme==="system"}>System</option>
                 <option value="testerTheme" selected={theme==="testerTheme"}>Do it yourself</option>
             </Selector>
-            <a href="/signup">Signup</a>
-            <a href="/dev">Developer</a>
+            <a href="/dashboard">Home</a>
+            <a href="/dashboard/site">Sites</a>
+            <a href="/dashboard/dev">Developer</a>
             <a href="/logout">Logout</a>
         </nav>
         <h1>Auth Dashboard</h1>

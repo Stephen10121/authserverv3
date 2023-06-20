@@ -1,18 +1,23 @@
 <script lang="ts">
 	import Site from "./Site.svelte";
-
+    export let sites: {
+        site: string;
+        blackList: string;
+        name:string;
+    }[];
 </script>
 
 <section>
-    <p>Websites</p>
-    <Site name='gruzauth' link="/"/>
-    <Site name='gruzauth3' link="/"/>
+    <p>Subscriptions</p>
+    {#each sites as site}
+        <Site name={site.name} link="/dashboard/site/{site.site}" blacklisted={site.blackList === "true"} />
+    {/each}
 </section>
 
 <style>
     section {
         box-shadow: var(--shadow);
-        min-height: 200px;
+        /* min-height: 200px; */
         overflow-y: auto;
         max-height: 300px;
         max-width: 100%;

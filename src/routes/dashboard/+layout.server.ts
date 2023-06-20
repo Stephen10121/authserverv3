@@ -1,5 +1,5 @@
 import { createAccessToken } from '$lib/server/token.js';
-import type { Key, MyUser, Sites, User } from '@prisma/client';
+import type { Key, MyUser, RegisteredSite, Sites, User } from '@prisma/client';
 import { redirect } from '@sveltejs/kit';
 import { verify } from "jsonwebtoken";
 import { dev } from '$app/environment';
@@ -65,10 +65,12 @@ export async function load({ cookies }) {
         cookies.delete("G_PERS");
         throw redirect(307, "/");
     }
-
-    const sites = siteArray.map((site) => {
-        return { site: site.website, blackList: site.blacklist, name: site.name };
-    });
+    let sites: { site: string; blackList: string; name: string; https: boolean }[] = [];
+    for (let i=0;i<siteArray.length;i++) { 
+        let registeredSite = await prisma.registeredSite.findFirst({ where: { unique: siteArray[i].website }});
+        if (!registeredSite) continue;
+        sites.push({ site: siteArray[i].website, blackList: siteArray[i].blacklist, name: siteArray[i].name, https: registeredSite.url.includes("https://") })
+    }
     let success = 0;
     let failed = 0;
     let mostPopular;
@@ -93,6 +95,11 @@ export async function load({ cookies }) {
         }
     }
     mostPopular = currentPop.key;
+    const mostpopularsite = await prisma.registeredSite.findFirst({ where: { unique: mostPopular }});
+    const newMostPopular = {
+        id: mostPopular,
+        name: mostpopularsite ? mostpopularsite.name : mostPopular
+    }
     let keyDataArray = [];
     const keys = await prisma.key.findMany({ where: { owner: user.id.toString() } }) as any as Key[];
     for (let i = 0; i < keys.length; i++) {
@@ -112,8 +119,8 @@ export async function load({ cookies }) {
             username: user.username
         },
         sites,
-        mostPopular,
-        https: sites.filter(x => x.site.includes("https")).length,
+        mostPopular: newMostPopular,
+        https: sites.filter(x => x.https).length,
         attemptedLogins: success + failed,
         failedLogins: failed,
         tfa: superUser.tfa,

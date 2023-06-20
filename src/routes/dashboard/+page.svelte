@@ -6,6 +6,7 @@
 	import { notification } from "../../stores/notification.js";
 	import Sites from "$lib/components/Sites.svelte";
 	export let data;
+	console.log(data);
 	
 	let setNotification: null | {type: "error" | "success", message: string} = null;
 	const notificationUnsubscribe = notification.subscribe((data) => setNotification = data);
@@ -19,18 +20,9 @@
 	<Notification type={setNotification.type} message={setNotification.message} />
 {/if}
 <section>
-	<div class="one">
-		<Name name={data.info.userData.user} token={data.accessToken} />
-	</div>
-	<div class="two">
-		<Stats attempted={data.info.attemptedLogins} failed={data.info.failedLogins} subscriptions={data.info.sites.length} popular={data.info.mostPopular} />
-	</div>
-	<div class="three">
-		<Sites />
-	</div>
-	<div class="four">
-		<!-- <Name name={data.info.userData.user} /> -->
-	</div>
+	<Name name={data.info.userData.user} token={data.accessToken} />
+	<Stats attempted={data.info.attemptedLogins} failed={data.info.failedLogins} subscriptions={data.info.sites.length} popular={data.info.mostPopular.name} popularId={data.info.mostPopular.id} />
+	<Sites sites={data.info.sites} />
 </section>
 
 <style>
@@ -42,22 +34,5 @@
 		flex-direction: column;
 		gap: 10px;
 		overflow-y: auto;
-		/* column-gap: 10px;
-		row-gap: 10px;
-		grid-template-areas: 'one two two two two' 'three three three four four'; */
-	}
-
-	.one {
-		grid-area: one;
-	}
-
-	.two {
-		grid-area: two;
-	}
-	.three {
-		grid-area: three;
-	}
-	.four {
-		grid-area: four;
 	}
 </style>
