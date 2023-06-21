@@ -32,6 +32,15 @@ async function startup() {
             owner: user.id
         }
     });
+    await prisma.registeredSite.create({
+        data: {
+            logins: 0,
+            url: "http://192.168.0.24:5173/myAuth",
+            name: "GruzAuth Beta",
+            unique: "gruzauth2",
+            owner: user.id
+        }
+    });
 }
 
 startup();

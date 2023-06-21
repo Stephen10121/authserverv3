@@ -55,7 +55,7 @@ model Sites {
 
 model MyUser {
   id Int @id @default(autoincrement())
-  username String
+  username String @unique
   hash String
   name String
   email String
