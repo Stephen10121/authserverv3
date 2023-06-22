@@ -16,6 +16,10 @@
 	});
 </script>
 
+<svelte:head>
+    <title>Dashboard</title>
+</svelte:head>
+
 {#if setNotification}
 	<Notification type={setNotification.type} message={setNotification.message} />
 {/if}

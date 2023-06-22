@@ -34,6 +34,7 @@ export async function load(event) {
                 }
             });
         } catch (err) {
+            console.log(err);
             return { status: "error" }
         }
     }

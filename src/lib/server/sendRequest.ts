@@ -1,6 +1,7 @@
 import type { Sites } from "@prisma/client";
 import { createHash } from "crypto";
 import { prisma } from "$lib/server/prisma";
+import { Temporal } from '@js-temporal/polyfill';
 
 export const hashed = (password: string) => {
     const hash = createHash('sha256').update(password).digest("hex");
@@ -15,6 +16,11 @@ async function addSite(owner: string, website: string, siteId: number) {
         if (!actualsite) {
             return false;
         }
+        const now = Temporal.Now.plainDateTimeISO()
+        let loginHistory: any = {}
+        loginHistory[`year${now.year}`] = {};
+        loginHistory[`year${now.year}`][`month${now.month}`] = {};
+        loginHistory[`year${now.year}`][`month${now.month}`][`day${now.day}`] = 1;
         await prisma.sites.create({
             data: {
                 owner,
@@ -22,6 +28,7 @@ async function addSite(owner: string, website: string, siteId: number) {
                 hash: hashed(hashed(owner)+hashed(website)+hashed(siteId.toString())),
                 blacklist: "false",
                 logins: 0,
+                loginHistory: JSON.stringify(loginHistory),
                 name: actualsite.name
             }
         });
@@ -58,15 +65,24 @@ export async function getOtherWebsiteKey(website: string, owner: string, siteId:
     const sites = userSites as Sites;
     
     if (sites.blacklist === "false") {
+        const now = Temporal.Now.plainDateTimeISO()
+        let loginHistory: any = JSON.parse(sites.loginHistory);
+        loginHistory[`year${now.year}`] = loginHistory[`year${now.year}`] ? loginHistory[`year${now.year}`] : {};
+        loginHistory[`year${now.year}`][`month${now.month}`] = loginHistory[`year${now.year}`][`month${now.month}`] ? loginHistory[`year${now.year}`][`month${now.month}`] : {};
+        loginHistory[`year${now.year}`][`month${now.month}`][`day${now.day}`] = loginHistory[`year${now.year}`][`month${now.month}`][`day${now.day}`] ? loginHistory[`year${now.year}`][`month${now.month}`][`day${now.day}`] + 1 : 1;
+
         await prisma.sites.update({
             where: {
                 id: sites.id
             },
             data: {
-                logins: sites.logins + 1
+                logins: {
+                    increment: 1
+                },
+                loginHistory: JSON.stringify(loginHistory),
             }
         });
-        
+
         await prisma.registeredSite.update({
             where: {
                 unique: website

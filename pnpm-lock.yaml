@@ -15,6 +15,7 @@ specifiers:
   '@typescript-eslint/parser': ^5.45.0
   base64url: ^3.0.1
   bcrypt: ^5.1.0
+  chart.js: ^4.3.0
   eslint: ^8.28.0
   eslint-config-prettier: ^8.5.0
   eslint-plugin-svelte: ^2.26.0
@@ -25,6 +26,7 @@ specifiers:
   prettier-plugin-svelte: ^2.8.1
   prisma: ^4.15.0
   svelte: ^3.54.0
+  svelte-chartjs: ^3.1.2
   svelte-check: ^3.0.1
   svelte-confetti-explosion: ^0.4.0
   sveltekit-superforms: 1.0.0-rc.3
@@ -39,10 +41,12 @@ dependencies:
   '@simplewebauthn/server': 7.3.0
   base64url: 3.0.1
   bcrypt: 5.1.0
+  chart.js: 4.3.0
   install: 0.13.0
   jsonwebtoken: 9.0.0
   npm: 9.7.1
   prisma: 4.15.0
+  svelte-chartjs: 3.1.2_4llyvsyqmzf26sjsxbn6u5pla4
 
 devDependencies:
   '@js-temporal/polyfill': 0.4.4
@@ -404,6 +408,10 @@ packages:
       jsbi: 4.3.0
       tslib: 2.5.3
     dev: true
+
+  /@kurkle/color/0.3.2:
+    resolution: {integrity: sha512-fuscdXJ9G1qb7W8VdHi+IwRqij3lBkosAm4ydQtEmbY58OzHXqQhvlxqEkoz0yssNVn38bcpRWgA9PP+OGoisw==}
+    dev: false
 
   /@mapbox/node-pre-gyp/1.0.10:
     resolution: {integrity: sha512-4ySo4CjzStuprMwk35H5pPbkymjv1SF3jGLj6rAHp/xT/RF7TL7bd9CTm1xDY49K2qF7jmR/g7k+SkLETP6opA==}
@@ -1070,6 +1078,13 @@ packages:
       ansi-styles: 4.3.0
       supports-color: 7.2.0
     dev: true
+
+  /chart.js/4.3.0:
+    resolution: {integrity: sha512-ynG0E79xGfMaV2xAHdbhwiPLczxnNNnasrmPEXriXsPJGjmhOBYzFVEsB65w2qMDz+CaBJJuJD0inE/ab/h36g==}
+    engines: {pnpm: '>=7'}
+    dependencies:
+      '@kurkle/color': 0.3.2
+    dev: false
 
   /chokidar/3.5.3:
     resolution: {integrity: sha512-Dr3sfKRP6oTcjf2JmUmFJfeVMvXBdegxB0iVQ5eb2V10uFJUCAS8OByZdVAyVb8xXNz3GjjTgj9kLWsZTqE6kw==}
@@ -2378,6 +2393,16 @@ packages:
     engines: {node: '>= 0.4'}
     dev: true
 
+  /svelte-chartjs/3.1.2_4llyvsyqmzf26sjsxbn6u5pla4:
+    resolution: {integrity: sha512-3+6gY2IJ9Ua8R9pk3iS1ypa7Z9OoXCJb9oPwIfTp7caJM+X+RrWnH2CTkGAq7FeSxc2nnmW08tYN88Q8Y+5M+w==}
+    peerDependencies:
+      chart.js: ^3.5.0 || ^4.0.0
+      svelte: ^3.45.0
+    dependencies:
+      chart.js: 4.3.0
+      svelte: 3.59.1
+    dev: false
+
   /svelte-check/3.4.3_svelte@3.59.1:
     resolution: {integrity: sha512-O07soQFY3X0VDt+bcGc6D5naz0cLtjwnmNP9JsEBPVyMemFEqUhL2OdLqvkl5H/u8Jwm50EiAU4BPRn5iin/kg==}
     hasBin: true
@@ -2484,7 +2509,6 @@ packages:
   /svelte/3.59.1:
     resolution: {integrity: sha512-pKj8fEBmqf6mq3/NfrB9SLtcJcUvjYSWyePlfCqN9gujLB25RitWK8PvFzlwim6hD/We35KbPlRteuA6rnPGcQ==}
     engines: {node: '>= 8'}
-    dev: true
 
   /sveltekit-superforms/1.0.0-rc.3_kborrn3axkegz6kr2bfn2mppbi:
     resolution: {integrity: sha512-QffCIbcwyqWqFA08N/rLTN6SJXvyfI07oPXpOas65FiQ4chYviQcDbtvW9WFiphhqBmvn9/+n9ka+RtazdRxfA==}

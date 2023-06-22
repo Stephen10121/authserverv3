@@ -56,7 +56,8 @@ export async function load(event) {
             logins: mySite.logins,
             blacklist: mySite.blacklist,
             name: mySite.name,
-            uniqueName: mySite.website
+            uniqueName: mySite.website,
+            loginHistory: mySite.loginHistory
         }
     }
 }

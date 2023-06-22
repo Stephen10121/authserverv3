@@ -5,6 +5,11 @@ import Sites from "$lib/components/Sites.svelte";
 	console.log(data);
 </script>
 
+<svelte:head>
+	<title>Sites</title>
+	<link rel="shortcut icon" href="/favicon.ico" type="image/x-icon" />
+</svelte:head>
+
 <section>
 	<Sites sites={data.info.sites} />
     <SecureSubs secureSubs={data.info.https} subscriptions={data.info.sites.length}/>

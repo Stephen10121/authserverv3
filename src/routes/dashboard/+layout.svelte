@@ -41,10 +41,6 @@
     });
 </script>
 
-<svelte:head>
-    <title>Dashboard</title>
-</svelte:head>
-
 <ThemeSetter {theme} {customThemes}>
     <header>
         <nav class="{showSlideDown ? "show" : ""}">

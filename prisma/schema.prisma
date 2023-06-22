@@ -49,6 +49,7 @@ model Sites {
   website String
   hash String
   logins Int
+  loginHistory String
   blacklist String
   name String
 }
