@@ -47,10 +47,10 @@
         --primary-color: #c7bef7;
         --primary-text-color: var(--text-color);
 
-        --secondary-color: #94A8F6;
+        --secondary-color: #b7b9c2;
         --secondary-text-color: var(--text-color);
 
-        --accent-color: #220cc9;
+        --accent-color: #8174e6;
         --accent-text-color: var(--text-color-light);
 
         --nuetral-color: #ffffff;
@@ -84,7 +84,7 @@
         --primary-color: #86efac;
         --primary-text-color: var(--text-color);
 
-        --secondary-color: #16253d;
+        --secondary-color: #4242425d;
         --secondary-text-color: var(--text-color-light);
 
         --accent-color: #8b5cf6;

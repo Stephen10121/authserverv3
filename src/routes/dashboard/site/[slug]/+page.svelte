@@ -1,14 +1,16 @@
 <script lang="ts">
-	import DatesVisited from "$lib/components/DatesVisited.svelte";
+	import CalendarChart from "$lib/components/CalendarChart.svelte";
+import DatesVisited from "$lib/components/DatesVisited.svelte";
 	import { Temporal } from "@js-temporal/polyfill";
 
     export let data;
 
     let loginHistory = JSON.parse(data.siteData.loginHistory);
-    const now = Temporal.Now.plainDateTimeISO();
-    loginHistory[`year${now.year+1}`] = loginHistory[`year${now.year}`] ? loginHistory[`year${now.year}`] : {};
-    loginHistory[`year${now.year+1}`][`month${now.month}`] = loginHistory[`year${now.year}`][`month${now.month}`] ? loginHistory[`year${now.year}`][`month${now.month}`] : {};
-    loginHistory[`year${now.year+1}`][`month${now.month}`][`day${now.day}`] = loginHistory[`year${now.year}`][`month${now.month}`][`day${now.day}`] ? loginHistory[`year${now.year}`][`month${now.month}`][`day${now.day}`] + 1 : 1;
+    console.log(loginHistory)
+    // const now = Temporal.Now.plainDateTimeISO();
+    // loginHistory[`year${now.year+1}`] = loginHistory[`year${now.year}`] ? loginHistory[`year${now.year}`] : {};
+    // loginHistory[`year${now.year+1}`][`month${now.month}`] = loginHistory[`year${now.year}`][`month${now.month}`] ? loginHistory[`year${now.year}`][`month${now.month}`] : {};
+    // loginHistory[`year${now.year+1}`][`month${now.month}`][`day${now.day}`] = loginHistory[`year${now.year}`][`month${now.month}`][`day${now.day}`] ? loginHistory[`year${now.year}`][`month${now.month}`][`day${now.day}`] + 1 : 1;
 </script>
 
 <svelte:head>
@@ -42,7 +44,8 @@
         </ul>
     </div>
     <div class="box">
-        <DatesVisited />
+        <!-- <DatesVisited /> -->
+        <CalendarChart {loginHistory} />
     </div>
 </section>
 
