@@ -12,7 +12,7 @@
 </script>
 
 <div class="tile {logins? "blue" : ""} {time2.year !== year ? "hide" : ""}">
-    <div class="extra">
+    <div class="extra {time2.month-1 > 8 ? "left" : time2.month-1 < 2 ? "right" : ""}">
         <p>
             {#if logins}
                 <span>{logins}</span>
@@ -31,8 +31,8 @@
 <style>
     .tile {
         border-radius: 2px;
-        width: 11px;
-        height: 11px;
+        width: 3px;
+        height: 3px;
         background-color: var(--secondary-color);
         position: relative;
     }
@@ -50,20 +50,30 @@
         transform: translate(-50%, calc(-100% - 10px));
         position: absolute;
         background-color: var(--base-color);
-        border: 1px solid #000000;
+        border: 1px solid var(--base-text-color);
         border-radius: 10px;
         z-index: 500;
         transition: opacity 0.1s linear;
         white-space: nowrap;
     }
 
+    .extra.left {
+        transform: translate(-100%, calc(-100% - 10px));
+    }
+
+    .extra.right {
+        transform: translate(0%, calc(-100% - 10px));
+    }
+
     .extra p {
         font-family: "Roboto", sans-serif;
+        color: var(--base-text-color);
     }
 
     .extra p span {
         font-family: "Poppins", sans-serif;
         font-weight: bold;
+        color: var(--base-text-color);
     }
 
     .tile.hide {
@@ -72,5 +82,24 @@
 
     .tile:hover .extra {
         opacity: 1;
+    }
+
+    @media (min-width: 500px) {
+        .tile {
+            width: 5px;
+            height: 5px;
+        }
+    }
+    @media (min-width: 650px) {
+        .tile {
+            width: 8px;
+            height: 8px;
+        }
+    }
+    @media (min-width: 850px) {
+        .tile {
+            width: 11px;
+            height: 11px;
+        }
     }
 </style>

@@ -1,13 +1,11 @@
 <script lang="ts">
 	import CalendarChart from "$lib/components/CalendarChart.svelte";
-import DatesVisited from "$lib/components/DatesVisited.svelte";
 	import { Temporal } from "@js-temporal/polyfill";
-
     export let data;
 
     let loginHistory = JSON.parse(data.siteData.loginHistory);
-    console.log(loginHistory)
-    // const now = Temporal.Now.plainDateTimeISO();
+    const now = Temporal.Now.plainDateTimeISO();
+    let year = now.year;
     // loginHistory[`year${now.year+1}`] = loginHistory[`year${now.year}`] ? loginHistory[`year${now.year}`] : {};
     // loginHistory[`year${now.year+1}`][`month${now.month}`] = loginHistory[`year${now.year}`][`month${now.month}`] ? loginHistory[`year${now.year}`][`month${now.month}`] : {};
     // loginHistory[`year${now.year+1}`][`month${now.month}`][`day${now.day}`] = loginHistory[`year${now.year}`][`month${now.month}`][`day${now.day}`] ? loginHistory[`year${now.year}`][`month${now.month}`][`day${now.day}`] + 1 : 1;
@@ -18,52 +16,76 @@ import DatesVisited from "$lib/components/DatesVisited.svelte";
 </svelte:head>
 
 <section>
-    <div class="box">
-        <h3>Logins</h3>
-        <p>{data.siteData.logins}</p>
+    <div class="box-bundle">
+        <div class="box">
+            <h3>Name</h3>
+            <p id="logins">{data.siteData.name}</p>
+        </div>
+        <div class="box">
+            <h3>Logins</h3>
+            <p id="logins">{data.siteData.logins}</p>
+        </div>
+        <div class="box">
+            <h3>Blacklist</h3>
+            <p id="logins">This site is {data.siteData.blacklist === "true" ? "" : "not"} blacklisted.</p>
+        </div>
     </div>
-    <div class="box">
-        <ul>
-            {#each Object.keys(loginHistory) as years}
-                <li>
-                    <button>{years}</button>
-                    <ul>
-                        {#each Object.keys(loginHistory[years]) as months}
-                            <li>
-                                <button>{months}</button>
-                                <ul>
-                                    {#each Object.keys(loginHistory[years][months]) as days}
-                                        <li>{days}: {loginHistory[years][months][days]}</li>
-                                    {/each}
-                                </ul>
-                            </li>
-                        {/each}
-                    </ul>
-                </li>
+    <div class="box column">
+        <h3>Login History</h3>
+        <div class="chart">
+            <div class="labels">
+                <p>Sun</p>
+                <p>Mon</p>
+                <p>Tue</p>
+                <p>Wed</p>
+                <p>Thu</p>
+                <p>Fri</p>
+                <p>Sat</p>
+            </div>
+            <CalendarChart year={year} {loginHistory} />
+        </div>
+        <div class="yearselector">
+            {#each Object.keys(loginHistory).reverse() as years}
+                <input class="yearselect sr-only" bind:group={year} id={years} type="radio" name="year" value={parseInt(years.substring(4, 8))} />
+                <label class="year" for={years}>{years.substring(4, 8)}</label>
             {/each}
-        </ul>
+        </div>
     </div>
     <div class="box">
-        <!-- <DatesVisited /> -->
-        <CalendarChart {loginHistory} />
+        <h3>Actions</h3>
+        <p>Name: {data.siteData.name}</p>
     </div>
 </section>
 
 <style>
 	section {
-		width: 100%;
-		height: 100%;
+        width: 100%;
+        height: 100%;
 		padding: 20px;
 		display: grid;
-		column-gap: 10px;
-        row-gap: 10px;
-        grid-template-rows: 1fr 1fr;
-        grid-template-columns: 1fr 1fr 2fr;
+		flex-direction: column;
+		gap: 10px;
+        overflow-y: auto;
+        overflow-x: hidden;
+		/* width: 100%; */
+		/* height: 100%; */
+		/* padding: 20px; */
+		/* display: grid; */
+		/* column-gap: 10px; */
+        /* row-gap: 10px; */
+        grid-template-rows: 1fr 1fr 1fr;
+        /* grid-template-columns: 1fr 1fr 2fr; */
 	}
+
+    .box-bundle {
+        display: flex;
+        flex-direction: column;
+    }
 
     .box {
         width: 100%;
         height: 100%;
+        min-height: 250px;
         box-shadow: var(--shadow);
         border-radius: 10px;
         position: relative;
@@ -73,27 +95,119 @@ import DatesVisited from "$lib/components/DatesVisited.svelte";
         padding: 20px;
     }
 
-    .box ul {
-        padding-left: 10px;
-    }
-
     .box h3 {
-        font-family: "Poppins", sans-serif;
-        font-size: 1.5rem;
-        top: 10px;
-        left: 20px;
-        opacity: 0.7;
+        font-family: "Roboto", sans-serif;
+        font-size: 1rem;
         font-weight: bold;
         color: var(--nuetral-text-color);
-        margin-top: 10px;
-        margin-bottom: 10px;
+        top: 10px;
+        left: 10px;
+        opacity: 0.7;
         position: absolute;
     }
 
     .box p {
         font-family: "Poppins", sans-serif;
-        font-size: 2rem;
+        /* font-size: 2rem; */
         font-weight: bold;
         color: var(--nuetral-text-color);
+        font-size: clamp(1rem, -1.5rem + 8vw, 2rem);
+    }
+    .info {
+        margin-top: 10px;
+        margin-bottom: 10px;
+        position: absolute;
+        top: -5px;
+        left: 5px;
+        opacity: 0.7;
+        display: flex;
+        align-items: flex-end;
+        gap: 5px;
+    }
+
+    .info p {
+        font-family: "Roboto", sans-serif;
+        font-size: 1rem;
+        font-weight: bold;
+        color: var(--nuetral-text-color);
+    }
+
+    .info .date {
+        font-size: 0.7rem;
+        color: var(--nuetral-text-color);
+    }
+
+    .chart {
+        display: flex;
+        align-items: center;
+        height: 89px;
+        gap: 5px;
+    }
+    .labels {
+        display: none;
+        flex-direction: column;
+        justify-content: space-evenly;
+        align-items: flex-end;
+        height: 100%;
+    }
+    .labels p {
+        font-size: 0.6rem;
+        margin-top: 2px;
+        font-family: "Poppins", sans-serif;
+        font-weight: bold;
+        color: var(--nuetral-text-color);
+    }
+    .sr-only {
+        clip: rect(0 0 0 0);
+        clip-path: inset(100%);
+        height: 1px;
+        overflow: hidden;
+        position: absolute;
+        white-space: nowrap; 
+        width: 1px;
+    }
+
+    .yearselector {
+        position: absolute;
+        bottom: 10px;
+        right: 10px;
+        width: 150px;
+        display: flex;
+        flex-direction: column;
+        gap: 5px;
+    }
+
+    .year {
+        background-color: var(--nuetral-color);
+        font-family: "Poppins", sans-serif;
+        font-weight: bold;
+        font-size: 1rem;
+        padding: 10px;
+        width: 100%;
+        text-align: center;
+        cursor: pointer;
+        border-radius: 10px;
+        color: var(--nuetral-text-color);
+        transition: filter 0.1s linear;
+    }
+
+    .year:hover {
+        filter: brightness(0.95);
+    }
+
+    .yearselect:checked + label {
+        filter: brightness(0.92);
+    }
+
+    @media (min-width: 850px) {
+        .labels {
+            display: flex;
+        }
+    }
+
+    @media (min-width: 1400px) {
+        .box-bundle {
+            flex-direction: row;
+        }
     }
 </style>

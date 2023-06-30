@@ -3,7 +3,7 @@
 	import CalendarTile from "./CalendarTile.svelte";
     export let loginHistory: any;
 
-    let year = 2023;
+    export let year: number;
     $: time = new Temporal.PlainDateTime(year, 1, 1);
 </script>
 
