@@ -11,7 +11,8 @@
     $: logins = loginHistory[`year${time2.year}`] ? loginHistory[`year${time2.year}`][`month${time2.month}`] ? loginHistory[`year${time2.year}`][`month${time2.month}`][`day${time2.day}`] ? loginHistory[`year${time2.year}`][`month${time2.month}`][`day${time2.day}`] : 0 : 0 : 0
 </script>
 
-<div class="tile {logins? "blue" : ""} {time2.year !== year ? "hide" : ""}">
+<div class="tile {time2.year !== year ? "hide" : ""}">
+    <div class="color {logins? "blue" : ""}" style="{logins ? `filter: brightness(${(logins * 10 + 40) / 100});` : ""}" />
     <div class="extra {time2.month-1 > 8 ? "left" : time2.month-1 < 2 ? "right" : ""}">
         <p>
             {#if logins}
@@ -33,11 +34,18 @@
         border-radius: 2px;
         width: 3px;
         height: 3px;
-        background-color: var(--secondary-color);
         position: relative;
     }
 
-    .tile.blue {
+    
+    .color {
+        width: 100%;
+        height: 100%;
+        border-radius: 2px;
+        background-color: var(--secondary-color);
+    }
+
+    .color.blue {
         background-color: var(--accent-color);
     }
 

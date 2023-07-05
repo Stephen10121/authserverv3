@@ -11,7 +11,7 @@
     export let accessToken: string | undefined = undefined;
     export let website: string;
     export let key: string;
-    export let loginStatus: "quickLogin" | "manualLogin" | "tfa";
+    export let loginStatus: "quickLogin" | "manualLogin" | "tfa" | "blacklist" | "nonregister";
     
     const { form, message, errors, enhance } = superForm(quickForm, { validators: quickAuthSchema });
     const redirectInstead = new URLSearchParams($page.url.search).get("type");
@@ -29,8 +29,16 @@
         loading = false;
     }
 
-    $: if ($message === "tfa") {
-        loginStatus = "tfa";
+    $: {
+        if ($message === "tfa") {
+            loginStatus = "tfa";
+        }
+        else if ($message === "blacklist") {
+            loginStatus = "blacklist";
+        }
+        else if ($message === "nonregister") {
+            loginStatus = "nonregister";
+        }
     }
 </script>
 

@@ -16,7 +16,7 @@
         }
     }
 
-    let loginStatus: "quickLogin" | "manualLogin" | "tfa" = "quickLogin";
+    let loginStatus: "quickLogin" | "manualLogin" | "tfa" | "blacklist" | 'nonregister' = "quickLogin";
     let tfaerror = "";
 
     async function tfaSend() {
@@ -110,6 +110,11 @@
                 <Spinner />
                 <button class="bordered">Not starting? Click here</button>
             </div>
+        {:else if loginStatus==="blacklist"}
+            <div class="blacklist" out:fade={{duration: 100}} in:fade={{delay: 100, duration: 100}}>
+                <h2>Blacklisted!</h2>
+                <a class="bordered" href="https://auth.gruzservices.com">Unblacklist website.</a>
+            </div>
         {:else}
             <Login bind:loginStatus manualForm={data.form} website={data.website} key={data.key} />
         {/if}
@@ -141,7 +146,8 @@
         box-shadow: rgba(17, 12, 46, 0.15) 0px 48px 100px 0px;
     }
 
-    .tfa {
+    .tfa,
+    .blacklist {
         width: 100%;
         height: 100%;
         display: flex;
@@ -167,11 +173,28 @@
         cursor: pointer;
     }
 
+    a.bordered {
+        width: 100%;
+        height: 40px;
+        border: none;
+        border-radius: 5px;
+        font-family: "George-Italic", sans-serif;
+        font-size: 1rem;
+        cursor: pointer;
+        background: none;
+        border: 1px solid #86ff86;
+        color: #000000;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
     .bordered {
         background: none;
         border: 1px solid #86ff86;
     }
 
+    a.bordered:hover,
     button:hover {
         outline: 2px solid #86ff86;
     }

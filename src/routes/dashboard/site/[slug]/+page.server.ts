@@ -37,7 +37,7 @@ export async function load(event) {
     } catch(err) {
         throw redirect(307, "/");
     }
-    
+
     let mySite: Sites | null
     try {
         mySite = await prisma.sites.findFirst({
@@ -51,8 +51,21 @@ export async function load(event) {
         throw redirect(307, "/");
     }
 
+    let registeredSite: RegisteredSite | null
+    try {
+        registeredSite = await prisma.registeredSite.findFirst({
+            where: {
+                unique: event.params.slug
+            }
+        });
+        if (!registeredSite) throw redirect(307, "/");
+    } catch(err) {
+        throw redirect(307, "/");
+    }
+
     return {
         siteData: {
+            owner: registeredSite.owner === actuallUser.id,
             logins: mySite.logins,
             blacklist: mySite.blacklist,
             name: mySite.name,

@@ -1,7 +1,19 @@
 <script lang="ts">
-	import CalendarChart from "$lib/components/CalendarChart.svelte";
+	import BlackListSection from "$lib/components/BlackListSection.svelte";
+import CalendarChart from "$lib/components/CalendarChart.svelte";
+	import CircleData from "$lib/components/CircleData.svelte";
+	import Information from "$lib/components/Information.svelte";
 	import { Temporal } from "@js-temporal/polyfill";
+	import { info } from "../../../../stores/notification.js";
     export let data;
+
+    let isOwner = data.siteData.owner;
+    if (data.siteData.owner) {
+        info.update((infos) => {
+            infos.push({ data: `Looks like you're the owner. <a style="color:#000000;opacity:0.7;" href="/">Owner Page</a>`, id: "isownerpopup" });
+            return infos
+        });
+    }
 
     let loginHistory = JSON.parse(data.siteData.loginHistory);
     const now = Temporal.Now.plainDateTimeISO();
@@ -14,7 +26,6 @@
 <svelte:head>
     <title>{data.siteData.name} | Sites</title>
 </svelte:head>
-
 <section>
     <div class="box-bundle">
         <div class="box">
@@ -23,11 +34,12 @@
         </div>
         <div class="box">
             <h3>Logins</h3>
-            <p id="logins">{data.siteData.logins}</p>
+            <CircleData delayMs={300} value={data.siteData.logins} />
+            <!-- <p id="logins">{data.siteData.logins}</p> -->
         </div>
-        <div class="box">
+        <div class="box red">
             <h3>Blacklist</h3>
-            <p id="logins">This site is {data.siteData.blacklist === "true" ? "" : "not"} blacklisted.</p>
+            <BlackListSection blacklist={data.siteData.blacklist} name={data.siteData.uniqueName} token={data.accessToken} />
         </div>
     </div>
     <div class="box column">
@@ -51,12 +63,16 @@
             {/each}
         </div>
     </div>
-    <div class="box">
+    <div class="box spread">
         <h3>Actions</h3>
-        <p>Name: {data.siteData.name}</p>
+        <CircleData delayMs={300} value={15} />
+        <CircleData value={50} />
+        <CircleData delayMs={500}  value={63} />
     </div>
 </section>
-
+<!-- {#if isOwner}
+    <Information on:click={() => isOwner = false}>Looks like you're the owner. <a style="color:#000000;opacity:0.7;" href="/">Owner Page</a></Information>
+{/if} -->
 <style>
 	section {
         width: 100%;
@@ -80,6 +96,7 @@
     .box-bundle {
         display: flex;
         flex-direction: column;
+        gap: 10px;
     }
 
     .box {
@@ -93,6 +110,19 @@
         align-items: center;
         justify-content: center;
         padding: 20px;
+    }
+
+    .box.spread {
+        justify-content: space-evenly;
+    }
+
+    .box.red {
+        border: 2px solid #ff0000;
+    }
+
+    .box.red h3 {
+        color: #ff0000;
+        opacity: 1;
     }
 
     .box h3 {
@@ -112,29 +142,6 @@
         font-weight: bold;
         color: var(--nuetral-text-color);
         font-size: clamp(1rem, -1.5rem + 8vw, 2rem);
-    }
-    .info {
-        margin-top: 10px;
-        margin-bottom: 10px;
-        position: absolute;
-        top: -5px;
-        left: 5px;
-        opacity: 0.7;
-        display: flex;
-        align-items: flex-end;
-        gap: 5px;
-    }
-
-    .info p {
-        font-family: "Roboto", sans-serif;
-        font-size: 1rem;
-        font-weight: bold;
-        color: var(--nuetral-text-color);
-    }
-
-    .info .date {
-        font-size: 0.7rem;
-        color: var(--nuetral-text-color);
     }
 
     .chart {
@@ -196,7 +203,7 @@
     }
 
     .yearselect:checked + label {
-        filter: brightness(0.92);
+        filter: brightness(0.82);
     }
 
     @media (min-width: 850px) {

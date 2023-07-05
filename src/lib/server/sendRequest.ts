@@ -67,6 +67,7 @@ export async function getOtherWebsiteKey(website: string, owner: string, siteId:
     if (sites.blacklist === "false") {
         const now = Temporal.Now.plainDateTimeISO()
         let loginHistory: any = JSON.parse(sites.loginHistory);
+        
         loginHistory[`year${now.year}`] = loginHistory[`year${now.year}`] ? loginHistory[`year${now.year}`] : {};
         loginHistory[`year${now.year}`][`month${now.month}`] = loginHistory[`year${now.year}`][`month${now.month}`] ? loginHistory[`year${now.year}`][`month${now.month}`] : {};
         loginHistory[`year${now.year}`][`month${now.month}`][`day${now.day}`] = loginHistory[`year${now.year}`][`month${now.month}`][`day${now.day}`] ? loginHistory[`year${now.year}`][`month${now.month}`][`day${now.day}`] + 1 : 1;
@@ -95,7 +96,7 @@ export async function getOtherWebsiteKey(website: string, owner: string, siteId:
         });
         return sites.hash;
     };
-    return "false";
+    return "blacklist";
 }
 
 interface SendRequestData {

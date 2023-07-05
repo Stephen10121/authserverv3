@@ -5,7 +5,7 @@
 	import Hamburger from "$lib/components/Hamburger.svelte";
 	import Selector from "$lib/components/Selector.svelte";
 	import { page } from "$app/stores";
-
+    import Notification from "$lib/components/Notification.svelte";
     export let data;
     
     testTheme.set(data.theme);
@@ -64,6 +64,7 @@
     <main>
         <slot />
     </main>
+    <Notification />
 </ThemeSetter>
 
 <style>

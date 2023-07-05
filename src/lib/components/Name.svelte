@@ -12,11 +12,23 @@
 	<Prompt placeholder="New name" on:close={() => nameChange=false} on:submit={async ({ detail }) => {
 		const changedName = await changeName(token, detail);
 		if (changedName.success) {
-			notification.set({type: "success", message: changedName.success});
+            notification.update((notify) => {
+                notify.push({
+                    type: "success",
+                    message: changedName.success
+                });
+                return notify
+            });
             invalidateAll();
 		}
 		if (changedName.error) {
-			notification.set({type: "error", message: changedName.error});
+            notification.update((notify) => {
+                notify.push({
+                    type: "error",
+                    message: changedName.error
+                });
+                return notify
+            });
 		}
 		nameChange = false
 	}}/>

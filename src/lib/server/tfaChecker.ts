@@ -46,6 +46,7 @@ export default async function tfaChecker(user: User, form: any) {
 
     if (form.data.type === "redirect") {
         const userData = await getOtherWebsiteKey(form.data.websiteId, user.id.toString(), registeredSite.id);
+        console.log({userData});
         if (userData === "blacklist" || userData==="nonregister") {
             await prisma.user.update({
                 where: {
