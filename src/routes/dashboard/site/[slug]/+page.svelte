@@ -1,16 +1,14 @@
 <script lang="ts">
 	import BlackListSection from "$lib/components/BlackListSection.svelte";
-import CalendarChart from "$lib/components/CalendarChart.svelte";
+    import CalendarChart from "$lib/components/CalendarChart.svelte";
 	import CircleData from "$lib/components/CircleData.svelte";
-	import Information from "$lib/components/Information.svelte";
 	import { Temporal } from "@js-temporal/polyfill";
 	import { info } from "../../../../stores/notification.js";
     export let data;
 
-    let isOwner = data.siteData.owner;
     if (data.siteData.owner) {
         info.update((infos) => {
-            infos.push({ data: `Looks like you're the owner. <a style="color:#000000;opacity:0.7;" href="/">Owner Page</a>`, id: "isownerpopup" });
+            infos.push({ data: `Looks like you're the owner of "${data.siteData.name}". <a style="color:#000000;opacity:0.7;" href="/">Owner Page</a>`, id: "isownerpopup" });
             return infos
         });
     }
@@ -70,9 +68,7 @@ import CalendarChart from "$lib/components/CalendarChart.svelte";
         <CircleData delayMs={500}  value={63} />
     </div>
 </section>
-<!-- {#if isOwner}
-    <Information on:click={() => isOwner = false}>Looks like you're the owner. <a style="color:#000000;opacity:0.7;" href="/">Owner Page</a></Information>
-{/if} -->
+
 <style>
 	section {
         width: 100%;

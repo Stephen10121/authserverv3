@@ -29,7 +29,7 @@ export async function POST({ request, cookies }) {
     const site = await prisma.sites.findFirst({ where: { website: body.name, owner: user.id.toString() } });
     
     if (!site) {
-        throw error(400, "Failed.");
+        throw error(400, "Failed2.");
     }
 
     try {

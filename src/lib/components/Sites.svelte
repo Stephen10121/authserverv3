@@ -1,5 +1,6 @@
 <script lang="ts">
 	import Site from "./Site.svelte";
+    export let token: string;
     export let sites: {
         site: string;
         blackList: string;
@@ -10,7 +11,7 @@
 <section>
     <p>Subscriptions</p>
     {#each sites as site}
-        <Site name={site.name} link="/dashboard/site/{site.site}" blacklisted={site.blackList === "true"} />
+        <Site name={site.name} unique={site.site} link="/dashboard/site/{site.site}" blacklisted={site.blackList === "true"} {token} />
     {/each}
 </section>
 

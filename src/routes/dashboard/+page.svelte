@@ -54,7 +54,7 @@
 <section>
 	<Name name={data.info.userData.user} token={data.accessToken} />
 	<Stats attempted={data.info.attemptedLogins} failed={data.info.failedLogins} subscriptions={data.info.sites.length} popular={data.info.mostPopular.name} popularId={data.info.mostPopular.id} />
-	<Sites sites={data.info.sites} />
+	<Sites sites={data.info.sites} token={data.accessToken} />
 </section>
 
 <style>

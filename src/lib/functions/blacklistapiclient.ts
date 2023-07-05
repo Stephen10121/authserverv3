@@ -1,4 +1,7 @@
-export default async function blacklistapiclient(blacklist: string, name: string, token: string) {
+import { invalidateAll } from "$app/navigation";
+import { notification } from "../../stores/notification";
+
+export async function blacklist2(blacklist: string, name: string, token: string) {
     const data = await fetch("/api/blacklist", {
         method: 'POST',
         headers: {
@@ -21,4 +24,17 @@ export default async function blacklistapiclient(blacklist: string, name: string
         error: false,
         message: "Success"
     }
+}
+
+export default async function blacklistapiclient(blacklist: string, name: string, token: string) {
+    const data = await blacklist2(blacklist, name, token);
+    
+    notification.update((notify) => {
+        notify.push({
+            type: data.error ? "error" : "success",
+            message: data.message
+        });
+        return notify
+    });
+    invalidateAll();
 }

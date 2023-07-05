@@ -2,10 +2,17 @@
     import window from "../../assets/site.svg";
     import unblacklisted from "../../assets/shield-x.svg";
     import blacklisted2 from "../../assets/shieldCheck.svg";
+	import blacklistapiclient from "$lib/functions/blacklistapiclient";
 
     export let blacklisted = false;
     export let name: string;
     export let link: string;
+    export let unique: string;
+    export let token: string;
+
+    async function blacklister() {
+        await blacklistapiclient(blacklisted ? "true" : "false", unique, token);
+    }
 </script>
 
 <div class="site {blacklisted ? "blacklist" : ""}">
@@ -17,7 +24,7 @@
         {#if blacklisted}
             <p class="blacklisted">Blacklisted</p>
         {/if}
-        <button title="{blacklisted ? "Unb" : "B"}lacklist site.">
+        <button title="{blacklisted ? "Unb" : "B"}lacklist site." on:click={blacklister}>
             <img src={blacklisted ? blacklisted2 : unblacklisted} alt="{blacklisted ? "Un" : ""}blacklist site.">
         </button>
     </div>

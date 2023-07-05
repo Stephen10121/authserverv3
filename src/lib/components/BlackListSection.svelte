@@ -1,22 +1,11 @@
 <script lang="ts">
-    import { invalidateAll } from '$app/navigation';
 	import blacklistapiclient from '$lib/functions/blacklistapiclient';
-	import { notification } from '../../stores/notification';
     export let blacklist: string;
     export let token: string;
     export let name: string;
 
     async function blacklister() {
-        const data = await blacklistapiclient(blacklist, name, token);
-        console.log(data);
-        notification.update((notify) => {
-            notify.push({
-                type: data.error ? "error" : "success",
-                message: data.message
-            });
-            return notify
-        });
-        invalidateAll();
+        await blacklistapiclient(blacklist, name, token);
     }
 </script>
 
