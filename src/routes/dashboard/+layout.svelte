@@ -6,7 +6,12 @@
 	import Selector from "$lib/components/Selector.svelte";
 	import { page } from "$app/stores";
     import Notification from "$lib/components/Notification.svelte";
+    import { navigating } from '$app/stores'
     export let data;
+
+    $: {
+        console.log($navigating);
+    }
     
     testTheme.set(data.theme);
     let theme = "";
@@ -42,6 +47,11 @@
 </script>
 
 <ThemeSetter {theme} {customThemes}>
+    {#if $navigating!==null}
+        <div class="loading">
+            <div class="big"></div>
+        </div>
+    {/if}
     <header>
         <nav class="{showSlideDown ? "show" : ""}">
             <Selector bind:value={$testTheme} on:change={setTheme} title="Choose Theme">
@@ -61,13 +71,33 @@
         <h1>Auth Dashboard</h1>
         <Hamburger colorVar="--nuetral-text-color" on:click={() => showSlideDown=!showSlideDown} active={showSlideDown} />
     </header>
-    <main>
+    <main style="--nav-height: {navigating ? "80" : "70"}px">
         <slot />
     </main>
     <Notification />
 </ThemeSetter>
 
 <style>
+    .loading {
+        height: 10px;
+        width: 100%;
+        background-color: #dfdfdf;
+    }
+    .big {
+        height: 100%;
+        width: 100%;
+        background-color: var(--primary-color);
+        animation: load 2s linear forwards;
+    }
+
+    @keyframes load {
+        0% {
+            width: 0%;
+        }
+        100% {
+            width: 100%;
+        }
+    }
     header {
         height: 70px;
         width: 100%;
@@ -90,7 +120,7 @@
     }
 
     main {
-        height: calc(100% - 70px);
+        height: calc(100% - var(--nav-height));
         width: 100%;
         z-index: -1;
         isolation: isolate;

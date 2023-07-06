@@ -4,6 +4,7 @@
 	import CircleData from "$lib/components/CircleData.svelte";
 	import { Temporal } from "@js-temporal/polyfill";
 	import { info } from "../../../../stores/notification.js";
+	import { onDestroy } from "svelte";
     export let data;
 
     if (data.siteData.owner) {
@@ -19,11 +20,20 @@
     // loginHistory[`year${now.year+1}`] = loginHistory[`year${now.year}`] ? loginHistory[`year${now.year}`] : {};
     // loginHistory[`year${now.year+1}`][`month${now.month}`] = loginHistory[`year${now.year}`][`month${now.month}`] ? loginHistory[`year${now.year}`][`month${now.month}`] : {};
     // loginHistory[`year${now.year+1}`][`month${now.month}`][`day${now.day}`] = loginHistory[`year${now.year}`][`month${now.month}`][`day${now.day}`] ? loginHistory[`year${now.year}`][`month${now.month}`][`day${now.day}`] + 1 : 1;
+
+    onDestroy(() => {
+        if (data.siteData.owner) {
+            info.update((infos) => {
+                return infos.filter((infos2) => infos2.id !== "isownerpopup");
+            });
+        }
+    });
 </script>
 
 <svelte:head>
     <title>{data.siteData.name} | Sites</title>
 </svelte:head>
+
 <section>
     <div class="box-bundle">
         <div class="box">
@@ -35,7 +45,7 @@
             <CircleData delayMs={300} value={data.siteData.logins} />
             <!-- <p id="logins">{data.siteData.logins}</p> -->
         </div>
-        <div class="box red">
+        <div class="box column red">
             <h3>Blacklist</h3>
             <BlackListSection blacklist={data.siteData.blacklist} name={data.siteData.uniqueName} token={data.accessToken} />
         </div>
@@ -200,6 +210,10 @@
 
     .yearselect:checked + label {
         filter: brightness(0.82);
+    }
+
+    .column {
+        flex-direction: column
     }
 
     @media (min-width: 850px) {

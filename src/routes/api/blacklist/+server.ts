@@ -23,13 +23,13 @@ export async function POST({ request, cookies }) {
     }
 
     if (body.name === "gruzauth2" || body.name === "gruzauth") {
-        throw error(400, "Failed.");
+        throw error(400, "You can't blacklist this subscription.");
     }
 
     const site = await prisma.sites.findFirst({ where: { website: body.name, owner: user.id.toString() } });
     
     if (!site) {
-        throw error(400, "Failed2.");
+        throw error(400, "Failed.");
     }
 
     try {

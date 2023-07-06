@@ -11,7 +11,7 @@ import Sites from "$lib/components/Sites.svelte";
 </svelte:head>
 
 <section>
-	<Sites sites={data.info.sites} />
+	<Sites sites={data.info.sites} token={data.accessToken} />
     <SecureSubs secureSubs={data.info.https} subscriptions={data.info.sites.length}/>
 </section>
 
