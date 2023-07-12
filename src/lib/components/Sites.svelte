@@ -26,7 +26,7 @@
         display: flex;
         flex-direction: column;
         gap: 5px;
-        padding: 25px 10px 10px 10px;
+        padding: 30px 10px 10px 10px;
         position: relative;
     }
 
