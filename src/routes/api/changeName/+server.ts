@@ -1,8 +1,7 @@
 import { json } from '@sveltejs/kit';
-import { verify } from 'jsonwebtoken';
 import { prisma } from "$lib/server/prisma";
-import type { MyUser, User } from '@prisma/client';
 import myUserFind from '$lib/functions/myUserFind.js';
+import verifyToken from '$lib/functions/verifyToken';
 
 export async function POST(event) {
     const unsplitToken = event.request.headers.get("Authorization");
@@ -19,13 +18,12 @@ export async function POST(event) {
         return json({error: "No body."});
     }
 
-    let payload: { userId: number };
-    try {
-        payload = verify(accessToken, import.meta.env.VITE_ACCESS_TOKEN_SECRET) as any as { userId: number };
-        if (!payload) return json({error: "Unauthorized"});
-    } catch (_err) {
-        return json({error: "Unauthorized"});
-    }
+    let tokenVerification = verifyToken({
+        tokenType: "access",
+        token: accessToken
+    });
+    if (tokenVerification.error) return json({error: "Unauthorized"});
+    let payload = tokenVerification.payload;
 
     let userLookup = await myUserFind({ method: "id", id: payload.userId });
     if (userLookup.error) return json({error: "Unauthorized"});

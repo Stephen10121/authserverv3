@@ -1,6 +1,6 @@
 import { error } from "@sveltejs/kit";
-import { verify } from "jsonwebtoken";
 import { prisma } from "$lib/server/prisma";
+import verifyToken from "$lib/functions/verifyToken";
 
 export async function POST({ request, cookies }) {
     const body = await request.json();
@@ -9,13 +9,15 @@ export async function POST({ request, cookies }) {
         throw error(400, "Missing arguments.");
     }
 
-    let payload: { userId: number };
-    try {
-        payload = verify(body.token, import.meta.env.VITE_ACCESS_TOKEN_SECRET) as any as { userId: number };
-    } catch (_err) {
+    let tokenVerification = verifyToken({
+        tokenType: "access",
+        token: body.token
+    });
+    if (tokenVerification.error) {
         cookies.delete("G_VAR");
         throw error(400, "Invalid Token.");
     }
+    let payload = tokenVerification.payload;
 
     const user = await prisma.user.findFirst({ where: { id: payload.userId } });
     if (!user) {

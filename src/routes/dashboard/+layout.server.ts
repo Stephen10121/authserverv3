@@ -5,6 +5,7 @@ import { verify } from "jsonwebtoken";
 import { dev } from '$app/environment';
 import { prisma } from "$lib/server/prisma";
 import myUserFind from '$lib/functions/myUserFind';
+import verifyToken from '$lib/functions/verifyToken';
 
 export async function load({ cookies }) {
     const refreshToken = cookies.get("G_PERS");
@@ -17,18 +18,15 @@ export async function load({ cookies }) {
 
     if (!refreshToken) throw redirect(307, "/");
 
-    let payload: { userId: number };
-    try {
-        payload = verify(refreshToken, import.meta.env.VITE_REFRESH_TOKEN_SECRET) as any as { userId: number };
-    } catch (_err) {
+    let tokenVerification = verifyToken({
+        tokenType: "refresh",
+        token: refreshToken
+    });
+    if (tokenVerification.error) {
         cookies.delete("G_PERS");
         throw redirect(307, "/");
     }
-
-    if (!payload) {
-        cookies.delete("G_PERS");
-        throw redirect(307, "/");
-    }
+    let payload = tokenVerification.payload;
 
     let userLookup = await myUserFind({ method: "id", id: payload.userId });
     if (userLookup.error) {

@@ -5,6 +5,7 @@ import { prisma } from "$lib/server/prisma";
 import { verify } from "jsonwebtoken";
 import sendRequest, { getOtherWebsiteKey } from "$lib/server/sendRequest";
 import type { RegisteredSite } from "@prisma/client";
+import verifyToken from "$lib/functions/verifyToken";
 
 // Human-readable title for your website
 const rpName = 'GruzAuth';
@@ -19,15 +20,12 @@ export async function POST(event) {
 
     if (!refreshToken) throw error(400, "No Token.");
 
-    let payload2: { userId: number };
-    try {
-        payload2 = verify(refreshToken, import.meta.env.VITE_REFRESH_TOKEN_SECRET) as any as { userId: number };
-    } catch (_err) {
-        event.cookies.delete("G_VAR");
-        throw error(400, "Invalid Token.");
-    }
-
-    if (!payload2) throw error(400, "Invalid token.");
+    let tokenVerification = verifyToken({
+        tokenType: "refresh",
+        token: refreshToken
+    });
+    if (tokenVerification.error) throw error(400, "Invalid Token.");
+    let payload2 = tokenVerification.payload;
 
     let user: UserModel | false = await getUserFromDB(payload2.userId);
     

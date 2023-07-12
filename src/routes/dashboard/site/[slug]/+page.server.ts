@@ -1,19 +1,18 @@
 import myUserFind from '$lib/functions/myUserFind';
-import type { MyUser, RegisteredSite, Sites, User } from '@prisma/client';
+import verifyToken from '$lib/functions/verifyToken';
+import type { RegisteredSite, Sites, User } from '@prisma/client';
 import { redirect } from '@sveltejs/kit';
-import { verify } from 'jsonwebtoken';
 
 export async function load(event) {
     if (!event.params.slug) throw redirect(307, "/dashboard");
     const data = await event.parent();
 
-    let payload: { userId: number };
-    try {
-        payload = verify(data.accessToken, import.meta.env.VITE_ACCESS_TOKEN_SECRET) as any as { userId: number };
-        if (!payload) throw redirect(307, "/");
-    } catch (_err) {
-        throw redirect(307, "/");
-    }
+    let tokenVerification = verifyToken({
+        tokenType: "access",
+        token: data.accessToken
+    });
+    if (tokenVerification.error) throw redirect(307, "/");
+    let payload = tokenVerification.payload;
 
     let userLookup = await myUserFind({ method: "id", id: payload.userId });
     if (userLookup.error) throw redirect(307, "/");

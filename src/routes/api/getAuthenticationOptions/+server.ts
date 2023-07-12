@@ -1,3 +1,4 @@
+import verifyToken from "$lib/functions/verifyToken.js";
 import { getUserFromDB, type Authenticator, type UserModel, setUserCurrentChallenge } from "$lib/server/twofactor";
 import { generateAuthenticationOptions } from "@simplewebauthn/server";
 import { error } from "@sveltejs/kit";
@@ -8,15 +9,13 @@ export async function GET(event) {
 
     if (!refreshToken) throw error(400, "No Token.");
 
-    let payload2: { userId: number };
-    try {
-        payload2 = verify(refreshToken, import.meta.env.VITE_REFRESH_TOKEN_SECRET) as any as { userId: number };
-    } catch (_err) {
-        event.cookies.delete("G_VAR");
-        throw error(400, "Invalid Token.");
-    }
-
-    if (!payload2) throw error(400, "Invalid token.");
+    let tokenVerification = verifyToken({
+        tokenType: "refresh",
+        token: refreshToken
+    });
+    if (tokenVerification.error) throw error(400, "Invalid Token.");
+    let payload2 = tokenVerification.payload;
+    
     let user: UserModel | false = await getUserFromDB(payload2.userId);
     
     if (!user) {

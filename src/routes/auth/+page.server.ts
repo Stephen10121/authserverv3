@@ -5,9 +5,9 @@ import { fail, redirect } from "@sveltejs/kit";
 import { prisma } from "$lib/server/prisma";
 import type { RegisteredSite, User } from "@prisma/client";
 import { dev } from "$app/environment";
-import { verify } from "jsonwebtoken";
 import { compare } from "bcrypt";
 import tfaChecker from "$lib/server/tfaChecker.js";
+import verifyToken from "$lib/functions/verifyToken";
 
 export async function load(event) {
     console.log({ip: event.getClientAddress()})
@@ -34,15 +34,15 @@ export async function load(event) {
     const refreshToken = event.cookies.get("G_VAR");
     if (!refreshToken) return defaultReturnValues
 
-    let payload: { userId: number };
-    try {
-        payload = verify(refreshToken, import.meta.env.VITE_REFRESH_TOKEN_SECRET) as any as { userId: number };
-    } catch (_err) {
+    let tokenVerification = verifyToken({
+        tokenType: "refresh",
+        token: refreshToken
+    });
+    if (tokenVerification.error) {
         event.cookies.delete("G_VAR");
         return defaultReturnValues
     }
-
-    if (!payload) return defaultReturnValues
+    let payload = tokenVerification.payload;
 
     let user: User | null = null;
     try {
@@ -110,14 +110,12 @@ export const actions = {
             return fail(400, { form });
         }
 
-        let payload: { userId: number };
-        try {
-            payload = verify(form.data.accessToken, import.meta.env.VITE_ACCESS_TOKEN_SECRET) as any as { userId: number };
-        } catch (_err) {
-            return setError(form, "overall", "Error logging in.");
-        }
-
-        if (!payload) return setError(form, "overall", "Error logging in.");
+        let tokenVerification = verifyToken({
+            tokenType: "access",
+            token: form.data.accessToken
+        });
+        if (tokenVerification.error) return setError(form, "overall", "Error logging in.");
+        let payload = tokenVerification.payload;
 
         let user: User | null = null;
         try {
