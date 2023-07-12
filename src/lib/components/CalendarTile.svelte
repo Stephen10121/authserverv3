@@ -15,11 +15,7 @@
     <div class="color {logins? "blue" : ""}" style="{logins ? `filter: brightness(${(logins * 10 + 40) / 100});` : ""}" />
     <div class="extra {time2.month-1 > 8 ? "left" : time2.month-1 < 2 ? "right" : ""}">
         <p>
-            {#if logins}
-                <span>{logins}</span>
-            {:else}
-                No
-            {/if}
+            <span>{logins ? logins : 0}</span>
             login{logins!==1?"s ":" "}on
             {["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"][time2.dayOfWeek-1]},
             {["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"][time2.month-1]}
