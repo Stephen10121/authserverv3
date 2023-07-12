@@ -70,7 +70,8 @@ export async function load(event) {
             blacklist: mySite.blacklist,
             name: mySite.name,
             uniqueName: mySite.website,
-            loginHistory: mySite.loginHistory
+            loginHistory: mySite.loginHistory,
+            secure: registeredSite.url.includes("https://")
         }
     }
 }

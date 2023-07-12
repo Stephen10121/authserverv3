@@ -5,6 +5,7 @@
 	import { Temporal } from "@js-temporal/polyfill";
 	import { info } from "../../../../stores/notification.js";
 	import { onDestroy } from "svelte";
+	import ExtraInfo from "$lib/components/ExtraInfo.svelte";
     export let data;
 
     if (data.siteData.owner) {
@@ -36,21 +37,21 @@
 
 <section>
     <div class="box-bundle">
-        <div class="box">
+        <div class="box centered">
             <h3>Name</h3>
             <p id="logins">{data.siteData.name}</p>
         </div>
-        <div class="box">
+        <div class="box centered">
             <h3>Logins</h3>
             <CircleData delayMs={300} value={data.siteData.logins} />
             <!-- <p id="logins">{data.siteData.logins}</p> -->
         </div>
-        <div class="box column red">
+        <div class="box centered column red">
             <h3>Blacklist</h3>
             <BlackListSection blacklist={data.siteData.blacklist} name={data.siteData.uniqueName} token={data.accessToken} />
         </div>
     </div>
-    <div class="box column">
+    <div class="box centered column">
         <h3>Login History</h3>
         <div class="chart">
             <div class="labels">
@@ -71,11 +72,22 @@
             {/each}
         </div>
     </div>
-    <div class="box spread">
-        <h3>Actions</h3>
-        <CircleData delayMs={300} value={15} />
-        <CircleData value={50} />
-        <CircleData delayMs={500}  value={63} />
+    <div class="box-bundle">
+        <div class="box centered">
+            <h3>Secure</h3>
+            <ExtraInfo>A secure website uses the https protocol. Not secure websites use the http protocol.</ExtraInfo>
+            <p id="logins">This site is {data.siteData.secure ? "" : "not"} secure.</p>
+        </div>
+        <div class="box ownerinfo">
+            <h3>Owner information</h3>
+            <p id="logins">{data.siteData.logins}</p>
+        </div>
+        <div class="box centered spread">
+            <h3>Actions</h3>
+            <CircleData delayMs={300} value={15} />
+            <CircleData value={50} />
+            <CircleData delayMs={500}  value={63} />
+        </div>
     </div>
 </section>
 
@@ -113,9 +125,12 @@
         border-radius: 10px;
         position: relative;
         display: flex;
+        padding: 20px;
+    }
+
+    .box.centered {
         align-items: center;
         justify-content: center;
-        padding: 20px;
     }
 
     .box.spread {
@@ -148,6 +163,10 @@
         font-weight: bold;
         color: var(--nuetral-text-color);
         font-size: clamp(1rem, -1.5rem + 8vw, 2rem);
+    }
+
+    .box.ownerinfo {
+        padding-top: 30px;
     }
 
     .chart {
