@@ -1,3 +1,4 @@
+import myUserFind from '$lib/functions/myUserFind';
 import type { MyUser, RegisteredSite, Sites, User } from '@prisma/client';
 import { redirect } from '@sveltejs/kit';
 import { verify } from 'jsonwebtoken';
@@ -14,17 +15,9 @@ export async function load(event) {
         throw redirect(307, "/");
     }
 
-    let user: MyUser | null
-    try {
-        user = await prisma.myUser.findFirst({
-            where: {
-                id: payload.userId
-            }
-        });
-        if (!user) throw redirect(307, "/");
-    } catch(err) {
-        throw redirect(307, "/");
-    }
+    let userLookup = await myUserFind({ method: "id", id: payload.userId });
+    if (userLookup.error) throw redirect(307, "/");
+    let user = userLookup.user;
 
     let actuallUser: User | null
     try {
@@ -73,7 +66,9 @@ export async function load(event) {
             loginHistory: mySite.loginHistory,
             secure: registeredSite.url.includes("https://"),
             ownerName: actuallUser.name,
-            ownerEmail: actuallUser.email
+            ownerEmail: actuallUser.email,
+            currentTheme: mySite.theme,
+            themeOptions: registeredSite.themes
         }
     }
 }

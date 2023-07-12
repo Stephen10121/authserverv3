@@ -2,6 +2,7 @@ import { json } from '@sveltejs/kit';
 import { verify } from 'jsonwebtoken';
 import { prisma } from "$lib/server/prisma";
 import type { MyUser, User } from '@prisma/client';
+import myUserFind from '$lib/functions/myUserFind.js';
 
 export async function POST(event) {
     const unsplitToken = event.request.headers.get("Authorization");
@@ -26,17 +27,9 @@ export async function POST(event) {
         return json({error: "Unauthorized"});
     }
 
-    let user: MyUser | null
-    try {
-        user = await prisma.myUser.findFirst({
-            where: {
-                id: payload.userId
-            }
-        });
-        if (!user) return json({error: "Unauthorized"});
-    } catch(err) {
-        return json({error: "Unauthorized"});
-    }
+    let userLookup = await myUserFind({ method: "id", id: payload.userId });
+    if (userLookup.error) return json({error: "Unauthorized"});
+    let user = userLookup.user;
 
     try {
         Promise.all([

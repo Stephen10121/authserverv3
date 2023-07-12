@@ -21,6 +21,7 @@ async function addSite(owner: string, website: string, siteId: number) {
         loginHistory[`year${now.year}`] = {};
         loginHistory[`year${now.year}`][`month${now.month}`] = {};
         loginHistory[`year${now.year}`][`month${now.month}`][`day${now.day}`] = 1;
+
         let themes: string[] = [];
         try {
             if (actualsite.themes.length > 1) {
@@ -30,6 +31,7 @@ async function addSite(owner: string, website: string, siteId: number) {
             console.log({themesParseError: err});
             themes = [];
         }
+        
         await prisma.sites.create({
             data: {
                 owner,

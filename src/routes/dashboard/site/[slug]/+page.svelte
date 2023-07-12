@@ -5,6 +5,7 @@
 	import { Temporal } from "@js-temporal/polyfill";
 	import { info } from "../../../../stores/notification.js";
 	import { onDestroy } from "svelte";
+    import Selector from "$lib/components/Selector.svelte";
 	import ExtraInfo from "$lib/components/ExtraInfo.svelte";
     export let data;
 
@@ -21,7 +22,7 @@
     // loginHistory[`year${now.year+1}`] = loginHistory[`year${now.year}`] ? loginHistory[`year${now.year}`] : {};
     // loginHistory[`year${now.year+1}`][`month${now.month}`] = loginHistory[`year${now.year}`][`month${now.month}`] ? loginHistory[`year${now.year}`][`month${now.month}`] : {};
     // loginHistory[`year${now.year+1}`][`month${now.month}`][`day${now.day}`] = loginHistory[`year${now.year}`][`month${now.month}`][`day${now.day}`] ? loginHistory[`year${now.year}`][`month${now.month}`][`day${now.day}`] + 1 : 1;
-
+    let selectedTheme = data.siteData.currentTheme;
     onDestroy(() => {
         if (data.siteData.owner) {
             info.update((infos) => {
@@ -84,10 +85,12 @@
             <p>Email: <a href="mailto:{data.siteData.ownerEmail}">{data.siteData.ownerEmail}</a></p>
         </div>
         <div class="box centered spread">
-            <h3>Actions</h3>
-            <CircleData delayMs={300} value={15} />
-            <CircleData value={50} />
-            <CircleData delayMs={500}  value={63} />
+            <h3>Theme</h3>
+            <Selector bind:value={selectedTheme} title="Choose Theme" on:change={() => console.log(selectedTheme)}>
+                {#each JSON.parse(data.siteData.themeOptions) as themes}
+                    <option value={themes} selected={selectedTheme === themes}>{themes}</option>
+                {/each}
+            </Selector>
         </div>
     </div>
 </section>

@@ -1,7 +1,8 @@
 import { dev } from "$app/environment";
-import { prisma } from "$lib/server/prisma";
+import myUserCreate from "$lib/functions/myUserCreate.js";
+import myUserFind from "$lib/functions/myUserFind";
 import { createRefreshToken } from "$lib/server/token";
-import type { Key, MyUser } from "@prisma/client";
+import type { MyUser } from "@prisma/client";
 import { redirect } from "@sveltejs/kit";
 
 export async function load(event) {
@@ -15,28 +16,18 @@ export async function load(event) {
         return { status: "error" }
     }
 
-    let userLookup: MyUser | null = null;
-    try {
-        userLookup = await prisma.myUser.findFirst({ where: { hash: data } });
-    } catch (err) {
-        console.log({userFindError: err});
-        return { status: "error" }
-    }
+    let userLookupRes = await myUserFind({
+        method: "hash",
+        hash: data
+    });
+    let userLookup: MyUser;
 
-    if (!userLookup) {
-        try {
-            userLookup = await prisma.myUser.create({
-                data: {
-                    name,
-                    username,
-                    hash: data,
-                    email
-                }
-            });
-        } catch (err) {
-            console.log(err);
-            return { status: "error" }
-        }
+    if (userLookupRes.error) {
+        let userCreate = await myUserCreate({name, username, hash: data, email});
+        if (userCreate.error) return { status: "error" }
+        userLookup = userCreate.user;
+    } else {
+        userLookup = userLookupRes.user;
     }
     
     event.cookies.set("G_PERS", createRefreshToken(userLookup.id), {

@@ -4,6 +4,7 @@ import { redirect } from '@sveltejs/kit';
 import { verify } from "jsonwebtoken";
 import { dev } from '$app/environment';
 import { prisma } from "$lib/server/prisma";
+import myUserFind from '$lib/functions/myUserFind';
 
 export async function load({ cookies }) {
     const refreshToken = cookies.get("G_PERS");
@@ -29,19 +30,12 @@ export async function load({ cookies }) {
         throw redirect(307, "/");
     }
 
-    let user: MyUser | null = null;
-    try {
-        user = await prisma.myUser.findFirst({ where: { id: payload.userId } });
-    } catch (err) {
-        console.log({userGetError: err});
+    let userLookup = await myUserFind({ method: "id", id: payload.userId });
+    if (userLookup.error) {
         cookies.delete("G_PERS");
         throw redirect(307, "/");
     }
-
-    if (!user) {
-        cookies.delete("G_PERS");
-        throw redirect(307, "/");
-    }
+    let user = userLookup.user;
 
     let superUser: User | null = null;
     try {
