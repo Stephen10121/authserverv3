@@ -52,6 +52,7 @@ model Sites {
   loginHistory String
   blacklist String
   name String
+  theme String
 }
 
 model MyUser {
@@ -69,4 +70,5 @@ model RegisteredSite {
   name String
   unique String @unique
   owner Int
+  themes String
 }

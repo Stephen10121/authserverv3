@@ -21,6 +21,15 @@ async function addSite(owner: string, website: string, siteId: number) {
         loginHistory[`year${now.year}`] = {};
         loginHistory[`year${now.year}`][`month${now.month}`] = {};
         loginHistory[`year${now.year}`][`month${now.month}`][`day${now.day}`] = 1;
+        let themes: string[] = [];
+        try {
+            if (actualsite.themes.length > 1) {
+                themes = JSON.parse(actualsite.themes);
+            }
+        } catch (err) {
+            console.log({themesParseError: err});
+            themes = [];
+        }
         await prisma.sites.create({
             data: {
                 owner,
@@ -29,7 +38,8 @@ async function addSite(owner: string, website: string, siteId: number) {
                 blacklist: "false",
                 logins: 0,
                 loginHistory: JSON.stringify(loginHistory),
-                name: actualsite.name
+                name: actualsite.name,
+                theme: themes.length !==0 ? themes[0] : ""
             }
         });
     } catch (err) {

@@ -8,8 +8,8 @@ async function startup() {
     const user = await prisma.user.create({
         data: {
             userName: "stephen",
-            name: "name here",
-            email: "email here",
+            name: "Stephen Gruzin",
+            email: "me@stephengruzin.dev",
             phone: "",
             password: data,
             tfa: "0",
@@ -29,7 +29,8 @@ async function startup() {
             url: "https://auth2.gruzservices.com/myAuth",
             name: "GruzAuth",
             unique: "gruzauth",
-            owner: user.id
+            owner: user.id,
+            themes: JSON.stringify(["system", "light", "dark"])
         }
     });
     await prisma.registeredSite.create({
@@ -38,7 +39,8 @@ async function startup() {
             url: "http://192.168.0.24:5173/myAuth",
             name: "GruzAuth Beta",
             unique: "gruzauth2",
-            owner: user.id
+            owner: user.id,
+            themes: JSON.stringify(["system", "light", "dark"])
         }
     });
 }
