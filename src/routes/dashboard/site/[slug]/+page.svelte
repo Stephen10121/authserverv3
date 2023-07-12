@@ -80,7 +80,8 @@
         </div>
         <div class="box ownerinfo">
             <h3>Owner information</h3>
-            <p id="logins">{data.siteData.logins}</p>
+            <p>Name: {data.siteData.ownerName}</p>
+            <p>Email: <a href="mailto:{data.siteData.ownerEmail}">{data.siteData.ownerEmail}</a></p>
         </div>
         <div class="box centered spread">
             <h3>Actions</h3>
@@ -166,7 +167,18 @@
     }
 
     .box.ownerinfo {
-        padding-top: 30px;
+        padding-top: 35px;
+        flex-direction: column;
+        gap: 5px;
+    }
+
+    .box.box.ownerinfo p {
+        font-size: 1rem;
+    }
+
+    .box.box.ownerinfo p a {
+        font-size: inherit;
+        color: inherit;
     }
 
     .chart {

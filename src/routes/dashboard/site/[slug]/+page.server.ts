@@ -71,7 +71,9 @@ export async function load(event) {
             name: mySite.name,
             uniqueName: mySite.website,
             loginHistory: mySite.loginHistory,
-            secure: registeredSite.url.includes("https://")
+            secure: registeredSite.url.includes("https://"),
+            ownerName: actuallUser.name,
+            ownerEmail: actuallUser.email
         }
     }
 }
