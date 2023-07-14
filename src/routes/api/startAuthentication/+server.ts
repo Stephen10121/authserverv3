@@ -6,6 +6,7 @@ import { verify } from "jsonwebtoken";
 import sendRequest, { getOtherWebsiteKey } from "$lib/server/sendRequest";
 import type { RegisteredSite } from "@prisma/client";
 import verifyToken from "$lib/functions/verifyToken";
+import siteAuthorizer from "$lib/functions/siteAuthorizer.js";
 
 // Human-readable title for your website
 const rpName = 'GruzAuth';
@@ -80,123 +81,16 @@ export async function POST(event) {
         throw error(400, "Invalid cookie.");
     }
 
-    console.log(`[server] Authorizing site: ${body.userData.website}`);
-    let popularSites: any = {}
-    if (user2.popularSites === "") {
-        popularSites[body.userData.website] = 1;
-    } else {
-        popularSites = JSON.parse(user2.popularSites);
-        popularSites[body.userData.website]= Object.keys(popularSites).includes(body.userData.website) ? popularSites[body.userData.website]+1 : 1;
-    }
-
-    await prisma.user.update({
-        where: {
-            id: user2.id
-        },
-        data: {
-            popularSites: JSON.stringify(popularSites)
-        }
-    });
-
-    let registeredSite: RegisteredSite | null = null;
-    try {
-        registeredSite = await prisma.registeredSite.findFirst({where: {unique: body.userData.website}});
-    } catch (err) {
-        console.log(err);
-        throw error(400, 'nonregister');
-    }
-    if (!registeredSite) {
-        throw error(400, 'nonregister');
-    }
-    const url = registeredSite.url;
-
-    if (body.userData.type === "redirect") {
-        const userData = await getOtherWebsiteKey(body.userData.website, user.id.toString(), registeredSite.id);
-        
-        if (userData === "blacklist" || userData==="nonregister") {
-            await prisma.user.update({
-                where: {
-                    id: user2.id
-                },
-                data: {
-                    failedLogins: {
-                        increment: 1
-                    }
-                }
-            });
-        }
-        if (userData === "blacklist") throw error(400, 'blacklist');
-        if (userData === "nonregister") throw error(400, 'nonregister');
-
-        await prisma.user.update({
-            where: {
-                id: user2.id
-            },
-            data: {
-                successLogins: {
-                    increment: 1
-                }
-            }
-        });
-        console.log(`[server] Sending data to ${body.userData.website} after tfa`);
-        return json({ redirect: {
-            data: userData,
-            key: body.userData.key,
-            name: user2.name,
-            email: user2.email,
-            username: user2.userName,
-            where: url,
-            msg: "success"
-        }});
-
-    }
-    const requestSender = await sendRequest({
+    const siteAuthorize = await siteAuthorizer({
         websiteId: body.userData.website,
-        url,
         key: body.userData.key,
-        username: user2.userName,
-        email: user2.email,
-        name: user2.name,
-        siteId: registeredSite.id,
-        userId: user.id.toString()
-    });
-    if (requestSender === "blacklist") {
-        await prisma.user.update({
-            where: {
-                id: user2.id
-            },
-            data: {
-                failedLogins: {
-                    increment: 1
-                }
-            }
-        });
-        throw error(400, 'blacklist');
-    }
-    if (requestSender === "nonregister") {
-        await prisma.user.update({
-            where: {
-                id: user2.id
-            },
-            data: {
-                failedLogins: {
-                    increment: 1
-                }
-            }
-        });
-        throw error(400, 'nonregister');
-    }
-    console.log("Sucess login");
-    await prisma.user.update({
-        where: {
-            id: user2.id
-        },
-        data: {
-            successLogins: {
-                increment: 1
-            }
-        }
+        user: user2,
+        redirectType: body.userData.type === "redirect" ? "json" : "indirect"
     });
 
-    return new Response(JSON.stringify({msg: 'success'}));
+    if (siteAuthorize.status === "blacklist") throw error(400, 'blacklist');
+    if (siteAuthorize.status === "nonregister") throw error(400, 'nonregister');
+    if (siteAuthorize.status === "success") return new Response(JSON.stringify({msg: 'success'}));
+    if (siteAuthorize.status === "json") return json(siteAuthorize.json);
+    if (siteAuthorize.status === "link") throw redirect(307, siteAuthorize.link.href);
 }

@@ -2,6 +2,8 @@ import type { Sites } from "@prisma/client";
 import { createHash } from "crypto";
 import { prisma } from "$lib/server/prisma";
 import { Temporal } from '@js-temporal/polyfill';
+import updateSite from "$lib/functions/updateSite";
+import updateRegisteredSite from "$lib/functions/updateRegisteredSite";
 
 export const hashed = (password: string) => {
     const hash = createHash('sha256').update(password).digest("hex");
@@ -84,23 +86,20 @@ export async function getOtherWebsiteKey(website: string, owner: string, siteId:
         loginHistory[`year${now.year}`][`month${now.month}`] = loginHistory[`year${now.year}`][`month${now.month}`] ? loginHistory[`year${now.year}`][`month${now.month}`] : {};
         loginHistory[`year${now.year}`][`month${now.month}`][`day${now.day}`] = loginHistory[`year${now.year}`][`month${now.month}`][`day${now.day}`] ? loginHistory[`year${now.year}`][`month${now.month}`][`day${now.day}`] + 1 : 1;
 
-        await prisma.sites.update({
-            where: {
-                id: sites.id
-            },
-            data: {
+        await updateSite({
+            id: sites.id,
+            updateData: {
                 logins: {
                     increment: 1
                 },
-                loginHistory: JSON.stringify(loginHistory),
+                loginHistory: JSON.stringify(loginHistory)
             }
         });
 
-        await prisma.registeredSite.update({
-            where: {
-                unique: website
-            },
-            data: {
+        await updateRegisteredSite({
+            method: "unique",
+            unique: website,
+            updateData: {
                 logins: {
                     increment: 1
                 }

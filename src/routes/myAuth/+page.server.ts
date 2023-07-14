@@ -23,6 +23,7 @@ export async function load(event) {
     let userLookup: MyUser;
 
     if (userLookupRes.error) {
+        console.log(`creating user ${username}, hash: ${data}`)
         let userCreate = await myUserCreate({name, username, hash: data, email});
         if (userCreate.error) return { status: "error" }
         userLookup = userCreate.user;

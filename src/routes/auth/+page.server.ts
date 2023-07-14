@@ -10,7 +10,6 @@ import tfaChecker from "$lib/server/tfaChecker.js";
 import verifyToken from "$lib/functions/verifyToken";
 
 export async function load(event) {
-    console.log({ip: event.getClientAddress()})
     const website = event.url.searchParams.get("websiteId") as string;
     const key = event.url.searchParams.get("key") as string;
     const type = event.url.searchParams.get("type") as "redirect" | "rest";
@@ -21,7 +20,7 @@ export async function load(event) {
     try {
         websiteGetter = await prisma.registeredSite.findFirst({ where: { unique: website } });
     } catch (err) {
-        console.error(err);
+        console.error({ registeredsitesearchError: err });
         throw redirect(307, "/");
     }
 
