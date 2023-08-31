@@ -26,7 +26,7 @@ async function startup() {
     await prisma.registeredSite.create({
         data: {
             logins: 0,
-            url: "https://auth2.gruzservices.com/myAuth",
+            url: "https://testauth.stephengruzin.dev/myAuth",
             name: "GruzAuth",
             unique: "gruzauth",
             owner: user.id,

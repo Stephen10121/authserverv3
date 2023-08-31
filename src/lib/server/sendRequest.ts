@@ -11,6 +11,7 @@ export const hashed = (password: string) => {
 }
 
 async function addSite(owner: string, website: string, siteId: number) {
+    console.log({owner, website, siteId})
     try {
         const actualsite = await prisma.registeredSite.findFirst({
             where: { id: siteId }

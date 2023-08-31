@@ -7,11 +7,15 @@ import sendRequest, { getOtherWebsiteKey } from "$lib/server/sendRequest";
 import type { RegisteredSite } from "@prisma/client";
 import verifyToken from "$lib/functions/verifyToken";
 import siteAuthorizer from "$lib/functions/siteAuthorizer.js";
+import { dev } from "$app/environment";
 
 // Human-readable title for your website
 const rpName = 'GruzAuth';
 // A unique identifier for your website
-const rpID = 'auth2.gruzservices.com';
+let rpID = 'auth.stephengruzin.dev';
+if (dev) {
+    rpID = "testauth.stephengruzin.dev";
+}
 // The URL at which registrations and authentications should occur
 const origin = `https://${rpID}`;
 

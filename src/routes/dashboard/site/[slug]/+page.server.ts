@@ -29,20 +29,22 @@ export async function load(event) {
     } catch(err) {
         throw redirect(307, "/");
     }
-
+    console.log("Getting my site.")
     let mySite: Sites | null
     try {
+        console.log({owner: user.id, website: event.params.slug})
         mySite = await prisma.sites.findFirst({
             where: {
                 owner: user.id.toString(),
                 website: event.params.slug
             }
         });
+        console.log({mySite})
         if (!mySite) throw redirect(307, "/");
     } catch(err) {
         throw redirect(307, "/");
     }
-
+    console.log("Getting Registered Site.")
     let registeredSite: RegisteredSite | null
     try {
         registeredSite = await prisma.registeredSite.findFirst({
@@ -50,10 +52,13 @@ export async function load(event) {
                 unique: event.params.slug
             }
         });
+        console.log({registeredSite});
         if (!registeredSite) throw redirect(307, "/");
     } catch(err) {
+        console.log({err})
         throw redirect(307, "/");
     }
+    console.log({registeredSite})
 
     return {
         siteData: {
