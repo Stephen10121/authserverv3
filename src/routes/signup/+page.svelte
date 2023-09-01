@@ -94,14 +94,15 @@
     async function cancel() {
         try {
             const cancelRequest = await fetch('/api/canceltfa', { method: "POST" });
-            const cancelRequestJSON = await cancelRequest.json();
 
+            if (cancelRequest.status !== 200) {
+                tfaKeyNameError = "An error occured. Please refresh.";
+                return
+            }
+
+            const cancelRequestJSON = await cancelRequest.json();
             if (!cancelRequestJSON) {
                 tfaKeyNameError = "An error occured. Please refresh.";
-                return;
-            }
-            if (cancelRequestJSON.data.error) {
-                tfaKeyNameError = cancelRequestJSON.data.error;
                 return;
             }
         } catch (err) {
