@@ -1,7 +1,8 @@
 import myUserFind from '$lib/functions/myUserFind';
 import verifyToken from '$lib/functions/verifyToken';
-import type { RegisteredSite, Sites, User } from '@prisma/client';
+import type { User, Sites, RegisteredSite } from '@prisma/client';
 import { redirect } from '@sveltejs/kit';
+import { prisma } from "$lib/server/prisma";
 
 export async function load(event) {
     if (!event.params.slug) throw redirect(307, "/dashboard");
@@ -14,9 +15,14 @@ export async function load(event) {
     if (tokenVerification.error) throw redirect(307, "/");
     let payload = tokenVerification.payload;
 
-    let userLookup = await myUserFind({ method: "id", id: payload.userId });
-    if (userLookup.error) throw redirect(307, "/");
-    let user = userLookup.user;
+    let user2 = await prisma.myUser.findFirst({ where: { id: payload.userId } });
+    if (!user2) throw redirect(307, "/");
+
+    let user = await prisma.user.findFirst({ where: { userName: user2.username } });
+    if (!user) throw redirect(307, "/");
+    // let userLookup = await myUserFind({ method: "id", id: payload.userId });
+    // if (userLookup.error) throw redirect(307, "/");
+    // let user = userLookup.user;
 
     let actuallUser: User | null
     try {
@@ -30,6 +36,7 @@ export async function load(event) {
         throw redirect(307, "/");
     }
     console.log("Getting my site.")
+    console.table({id: user.id, name: user.userName});
     let mySite: Sites | null
     try {
         console.log({owner: user.id, website: event.params.slug})

@@ -39,10 +39,8 @@ export default async function siteAuthorizer(data2: SiteAuthorizerProps): Promis
     if (!registeredSite) return {status: "nonregister"}
 
     const url = registeredSite.url;
-
     if (redirectType === "link" || redirectType === "json") {
         const userData = await getOtherWebsiteKey(websiteId, user.id.toString(), registeredSite.id);
-        console.log({userData});
         if (userData === "blacklist" || userData==="nonregister") {
             await prisma.user.update({
                 where: {
@@ -58,6 +56,17 @@ export default async function siteAuthorizer(data2: SiteAuthorizerProps): Promis
         if (userData === "blacklist") return { status: "blacklist" }
         if (userData === "nonregister") return { status: "blacklist" }
 
+        await prisma.user.update({
+            where: {
+                id: user.id
+            },
+            data: {
+                successLogins: {
+                    increment: 1
+                }
+            }
+        });
+
         console.log(`[server] Sending data to ${websiteId}`);
         if (redirectType==="link") {
             const newLocation = new URL(url);
@@ -66,16 +75,6 @@ export default async function siteAuthorizer(data2: SiteAuthorizerProps): Promis
             newLocation.searchParams.append("name", user.name);
             newLocation.searchParams.append("email", user.email);
             newLocation.searchParams.append("username", user.userName);
-            await prisma.user.update({
-                where: {
-                    id: user.id
-                },
-                data: {
-                    successLogins: {
-                        increment: 1
-                    }
-                }
-            });
             return {
                 status: "link",
                 link: newLocation
@@ -133,7 +132,7 @@ export default async function siteAuthorizer(data2: SiteAuthorizerProps): Promis
         });
         return { status: "nonregister" }
     }
-
+    console.log("Updating success logins");
     await prisma.user.update({
         where: {
             id: user.id
