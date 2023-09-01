@@ -9,13 +9,14 @@ import siteAuthorizer from "$lib/functions/siteAuthorizer";
  */
 export default async function tfaChecker(user: User, form: any) {
     console.log(`[server] Checking if user enabled 2fa.`);
+    
     if (user.tfa === "1") {
         const findKeys = await prisma.key.findMany({ where: { owner: user.id.toString() } })
         if (findKeys.length !== 0) {
+            console.log(`[server] User enabled 2fa.`);
             return message(form, 'tfa');
         }
     }
-    console.log(`[server] User enabled 2fa.`);
 
     const siteAuthorize = await siteAuthorizer({
         websiteId: form.data.websiteId,

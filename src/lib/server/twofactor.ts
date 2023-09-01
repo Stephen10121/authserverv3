@@ -98,6 +98,7 @@ export async function addNewDevice(device: Authenticator) {
                 authenticator: addedAuthenticator.id
             }
         });
+        await prisma.user.update({ where: { id: parseInt(device.owner) }, data: { tfa: "1" } });
         return true;
     } catch (err) {
         console.error(err);
