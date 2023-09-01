@@ -107,12 +107,12 @@
             <LoginInput name="tfaname" placeholder="2fa Method Name (e.g., Macbook Fingerprint.)" icon={tfaname} bind:value={tfaKeyName} bind:error={tfaKeyNameError}  />
             <button class="more-border" on:click={begintfamethod}>Begin</button>
             {#if !currentlyRegistering}
-                <button class="more-border" on:click={cancel}>Cancel{signingUp ? "and Signup" : ""}</button>
+                <button class="more-border" on:click={cancel}>Cancel {signingUp ? "and Signup" : ""}</button>
             {/if}
         {/if}
     </div>
     {#if currentlyRegistering}
-        <button class="more-border" on:click={cancel}>Cancel{signingUp ? "and Signup" : ""}</button>
+        <button class="more-border" on:click={cancel}>Cancel {signingUp ? "and Signup" : ""}</button>
     {:else}
         <div />
     {/if}
