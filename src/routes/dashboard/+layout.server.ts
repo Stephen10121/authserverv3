@@ -37,7 +37,7 @@ export async function load({ cookies }) {
 
     let superUser: User | null = null;
     try {
-        superUser = await prisma.user.findFirst({ where: { email: user.email } });
+        superUser = await prisma.user.findFirst({ where: { userName: user.username } });
     } catch (err) {
         console.log({getSuperUserError: err});
         cookies.delete("G_PERS");
@@ -93,7 +93,8 @@ export async function load({ cookies }) {
         name: mostpopularsite ? mostpopularsite.name : mostPopular
     }
     let keyDataArray = [];
-    const keys = await prisma.key.findMany({ where: { owner: user.id.toString() } }) as any as Key[];
+    
+    const keys = await prisma.key.findMany({ where: { owner: superUser.id.toString() } }) as any as Key[];
     for (let i = 0; i < keys.length; i++) {
         let authenticator = await prisma.keysAuthenticator.findFirst({ where: { id: keys[i].authenticator} });
         if (!authenticator) {

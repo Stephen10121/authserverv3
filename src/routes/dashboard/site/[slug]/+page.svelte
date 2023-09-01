@@ -85,7 +85,8 @@
             <p>Email: <a href="mailto:{data.siteData.ownerEmail}">{data.siteData.ownerEmail}</a></p>
         </div>
         <div class="box centered spread">
-            <h3>Theme</h3>
+            <h3>Theme (Coming soon!)</h3>
+            <ExtraInfo>Still in development.</ExtraInfo>
             <Selector bind:value={selectedTheme} title="Choose Theme" on:change={() => console.log(selectedTheme)}>
                 {#each JSON.parse(data.siteData.themeOptions) as themes}
                     <option value={themes} selected={selectedTheme === themes}>{themes}</option>

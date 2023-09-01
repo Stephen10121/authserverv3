@@ -18,7 +18,7 @@
 <style>
     section {
         box-shadow: var(--shadow);
-        /* min-height: 200px; */
+        min-height: 80px;
         overflow-y: auto;
         max-height: 300px;
         max-width: 100%;

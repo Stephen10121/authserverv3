@@ -1,6 +1,7 @@
 import verifyToken from "$lib/functions/verifyToken";
 import { getUserFromDB, type UserModel } from "$lib/server/twofactor";
 import { error, json } from "@sveltejs/kit";
+import { prisma } from "$lib/server/prisma";
 
 export async function POST(event) {
     const refreshToken = event.cookies.get("G_VAR");

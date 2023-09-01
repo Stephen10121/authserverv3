@@ -4,7 +4,10 @@
 	import { onMount } from "svelte";
 	import Sites from "$lib/components/Sites.svelte";
 	import osDetector from "$lib/functions/osDetector.js";
+	import TfaSection from "$lib/components/TfaSection.svelte";
 	export let data;
+
+	console.log(data);
 
 	onMount(() => {
 		console.log(osDetector(navigator, window));
@@ -19,6 +22,7 @@
 	<Name name={data.info.userData.user} token={data.accessToken} />
 	<Stats attempted={data.info.attemptedLogins} failed={data.info.failedLogins} subscriptions={data.info.sites.length} popular={data.info.mostPopular.name} popularId={data.info.mostPopular.id} />
 	<Sites sites={data.info.sites} token={data.accessToken} />
+	<TfaSection tfa={data.info.tfa} tfaKeys={data.info.tfaKeys}/>
 </section>
 
 <style>
