@@ -53,7 +53,7 @@
 <style>
     section {
         box-shadow: var(--shadow);
-        min-height: 250px;
+        min-height: 350px;
         max-width: 100%;
         padding: 20px;
         border-radius: 5px;
@@ -119,6 +119,7 @@
 
     @media (min-width: 650px) {
         section {
+            min-height: 250px;
             grid-template-areas: "box1 box2" "box3 box4";
             justify-content: space-evenly;
         }
