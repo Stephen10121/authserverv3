@@ -23,7 +23,7 @@ async function addSite(owner: string, website: string, siteId: number) {
         let loginHistory: any = {}
         loginHistory[`year${now.year}`] = {};
         loginHistory[`year${now.year}`][`month${now.month}`] = {};
-        loginHistory[`year${now.year}`][`month${now.month}`][`day${now.day}`] = 1;
+        loginHistory[`year${now.year}`][`month${now.month}`][`day${now.day}`] = 0;
 
         let themes: string[] = [];
         try {
@@ -85,8 +85,10 @@ export async function getOtherWebsiteKey(website: string, owner: string, siteId:
         
         loginHistory[`year${now.year}`] = loginHistory[`year${now.year}`] ? loginHistory[`year${now.year}`] : {};
         loginHistory[`year${now.year}`][`month${now.month}`] = loginHistory[`year${now.year}`][`month${now.month}`] ? loginHistory[`year${now.year}`][`month${now.month}`] : {};
+        console.log(JSON.stringify(loginHistory));
+        console.log(loginHistory[`year${now.year}`][`month${now.month}`][`day${now.day}`])
         loginHistory[`year${now.year}`][`month${now.month}`][`day${now.day}`] = loginHistory[`year${now.year}`][`month${now.month}`][`day${now.day}`] ? loginHistory[`year${now.year}`][`month${now.month}`][`day${now.day}`] + 1 : 1;
-
+        console.log(loginHistory[`year${now.year}`][`month${now.month}`][`day${now.day}`])
         await updateSite({
             id: sites.id,
             updateData: {

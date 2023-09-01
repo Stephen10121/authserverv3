@@ -17,6 +17,7 @@
     }
 
     let loginHistory = JSON.parse(data.siteData.loginHistory);
+    console.log({loginHistory});
     const now = Temporal.Now.plainDateTimeISO();
     let year = now.year;
     // loginHistory[`year${now.year+1}`] = loginHistory[`year${now.year}`] ? loginHistory[`year${now.year}`] : {};
