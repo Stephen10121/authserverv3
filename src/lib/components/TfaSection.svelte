@@ -60,10 +60,9 @@
 <style>
 	.twofactor {
 		width: 100%;
-		min-height: 100px;
 		box-shadow: var(--shadow);
 		position: relative;
-		padding: 45px 10px 10px 10px;
+		padding: 30px 10px 10px 10px;
 		display: flex;
 		align-items: center;
 		justify-content: center;
@@ -94,12 +93,14 @@
 	}
 
 	.title {
-		position: absolute;
-		top: 10px;
-		left: 10px;
 		font-family: "Roboto", sans-serif;
-		font-size: 1rem;
-		font-weight: bold;
-		color: var(--main-color);
+        font-size: 1rem;
+        font-weight: bold;
+        color: var(--nuetral-text-color);
+        margin-top: 10px;
+        margin-bottom: 10px;
+        position: absolute;
+        top: -5px;
+        left: 5px;
 	}
 </style>
